@@ -7,23 +7,19 @@ use diesel_async::{
     RunQueryDsl,
 };
 use crate::{
-    schema::user_tab,
-    error::AppError,
+    error::AppError, schema::user_tab, settings::AppSettings
 };
 
-const DATABASE_URL : &str = "mysql://malfple_test:Password1@127.0.0.1:3306/klb";
-
-#[derive(Clone)]
-pub struct DB {
+pub struct DBClient {
     pub pool: Pool<diesel_async::AsyncMysqlConnection>,
 }
 
-impl DB {
-    pub fn new() -> DB {
-        let config = AsyncDieselConnectionManager::<diesel_async::AsyncMysqlConnection>::new(DATABASE_URL);
+impl DBClient {
+    pub fn new(settings: &AppSettings) -> DBClient {
+        let config = AsyncDieselConnectionManager::<diesel_async::AsyncMysqlConnection>::new(&settings.database.url);
         let pool = Pool::builder(config).build().unwrap();
 
-        DB {
+        DBClient {
             pool,
         }
     }

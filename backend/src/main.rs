@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use axum::{
     routing::get,
     Router,
@@ -7,16 +8,21 @@ pub mod service;
 pub mod db;
 pub mod schema;
 pub mod error;
+pub mod settings;
 
 #[derive(Clone)]
 pub struct AppState {
-    pub db: db::DB,
+    pub db_client: Arc<db::DBClient>,
+    pub settings: Arc<settings::AppSettings>
 }
 
 #[tokio::main]
 async fn main() {
+    let settings = settings::AppSettings::new().expect("settings cannot be initialized");
+
     let state = AppState{
-        db: db::DB::new(),
+        db_client: Arc::new(db::DBClient::new(&settings)),
+        settings: Arc::new(settings),
     };
 
     let app = root_router()

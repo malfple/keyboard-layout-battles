@@ -1,5 +1,5 @@
 use axum::{
-    extract::{Query, RawPathParams, State}, response
+    extract::{Query, State}, response
 };
 use crate::{
     db::UserModel, error::AppError, AppState
@@ -18,7 +18,7 @@ pub async fn get_user_by_username(
     State(state): State<AppState>,
     Query(params): Query<GetUserByUsernameRequest>,
 ) -> Result<axum::Json<UserModel>, AppError> {
-    let user = state.db.get_user_by_username(&params.username).await?;
+    let user = state.db_client.get_user_by_username(&params.username).await?;
 
     print!("{:?}", params);
 
