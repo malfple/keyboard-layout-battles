@@ -20,7 +20,7 @@ pub async fn get_user_by_username(
 ) -> Result<axum::Json<UserModel>, AppError> {
     let user = state.db_client.get_user_by_username(&params.username).await?;
 
-    print!("{:?}", params);
+    tracing::debug!("{:?}", params);
 
     Ok(response::Json(user))
 }

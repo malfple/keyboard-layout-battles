@@ -1,8 +1,10 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 use axum::{
-    routing::get,
-    Router,
+    extract::MatchedPath, http::{Request, Response}, routing::get, Router
 };
+use tracing::Span;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use tower_http::trace::TraceLayer;
 
 pub mod service;
 pub mod db;
@@ -20,18 +22,42 @@ pub struct AppState {
 async fn main() {
     let settings = settings::AppSettings::new().expect("settings cannot be initialized");
 
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+            "backend=debug,tower_http=debug".into()
+        }))
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
     let state = AppState{
         db_client: Arc::new(db::DBClient::new(&settings)),
         settings: Arc::new(settings),
     };
 
     let app = root_router()
+        .layer(TraceLayer::new_for_http()
+            .make_span_with(|request: &Request<_>| {
+                let matched_path = request
+                    .extensions()
+                    .get::<MatchedPath>()
+                    .map(MatchedPath::as_str);
+
+                tracing::info_span!(
+                    "http_request_logger",
+                    method = ?request.method(),
+                    matched_path
+                )
+            }).on_request(|request: &Request<_>, _span: &Span| {
+                tracing::info!("request_data: {:?}", request)
+            }).on_response(|response: &Response<_>, latency: Duration, _span: &Span| {
+                tracing::info!("response_data: {:?} | latency: {:?}", response, latency)
+            }))
         .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
         .await
         .unwrap();
-    println!("listening on {}", listener.local_addr().unwrap());
+    tracing::info!("listening on {}", listener.local_addr().unwrap());
     axum::serve(listener, app).await.unwrap();
 }
 
