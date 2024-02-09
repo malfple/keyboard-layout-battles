@@ -3,7 +3,13 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct AppSettings {
-    pub database : Database,
+    pub general: General,
+    pub database: Database,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct General {
+    pub token_secret: String,
 }
 
 #[derive(Debug, Deserialize)]

@@ -1,2 +1,5 @@
+[general]
+token_secret = "test-secret"
+
 [database]
 url = "mysql://malfple_test:Password1@127.0.0.1:3306/klb"

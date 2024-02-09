@@ -1,8 +1,7 @@
 use diesel::prelude::*;
 use diesel_async::{
     pooled_connection::{
-        AsyncDieselConnectionManager,
-        deadpool::Pool,
+        deadpool::Pool, AsyncDieselConnectionManager
     },
     RunQueryDsl,
 };
@@ -24,6 +23,19 @@ impl DBClient {
         }
     }
 
+    pub async fn create_user(&self, username: &str, hashed_password: &str) -> Result<usize, AppError> {
+        let mut conn = self.pool.get().await?;
+
+        let result = diesel::insert_into(user_tab::table)
+            .values((
+                user_tab::username.eq(username),
+                user_tab::password.eq(hashed_password)))
+            .execute(&mut conn)
+            .await?;
+
+        Ok(result)
+    }
+
     pub async fn get_user_by_username(&self, username: &str) -> Result<UserModel, AppError> {
         let mut conn = self.pool.get().await?;
 
@@ -33,7 +45,7 @@ impl DBClient {
             .first(&mut conn)
             .await?;
         
-        return Ok(result)
+        Ok(result)
     }
 }
 

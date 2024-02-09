@@ -1,6 +1,6 @@
 use std::{sync::Arc, time::Duration};
 use axum::{
-    extract::MatchedPath, http::{Request, Response}, routing::get, Router
+    extract::MatchedPath, http::{Request, Response}, routing::{get, post}, Router
 };
 use tracing::Span;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -64,7 +64,9 @@ async fn main() {
 fn root_router() -> Router<AppState> {
     let app = Router::new()
         .route("/", get(service::ping))
-        .route("/user", get(service::get_user_by_username));
+        .route("/user", get(service::get_user_by_username))
+        .route("/login", post(service::login))
+        .route("/register", post(service::register));
 
     app
 }

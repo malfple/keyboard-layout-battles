@@ -12,4 +12,4 @@ CREATE TABLE user_tab(
 );
 
 INSERT INTO user_tab(username, password, layout_data, time_created, time_modified)
-VALUES ("admin", "admin", "sntc", UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+VALUES ('admin', '$2b$08$lES0y3GGF9GL0scfeISeC./hkeVkMJ2j5FA9VExa3SPR.DmFVLnLq', 'frdpwqjuoysntcbmheai,zxkgv.l;''/', UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
