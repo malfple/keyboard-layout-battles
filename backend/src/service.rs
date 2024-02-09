@@ -43,7 +43,8 @@ pub struct LoginRequest {
 #[derive(Debug, Serialize)]
 pub struct LoginResponse {
     message: String,
-    access_token: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    access_token: Option<String>,
 }
 
 pub async fn login(
@@ -59,12 +60,12 @@ pub async fn login(
 
         Ok(Json(LoginResponse{
             message: "login success".into(),
-            access_token: token,
+            access_token: Some(token),
         }))
     } else {
         Ok(Json(LoginResponse{
             message: "wrong credentials".into(),
-            access_token: "".into(),
+            access_token: None,
         }))
     }
 }
