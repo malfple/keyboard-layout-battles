@@ -6,8 +6,11 @@ use diesel_async::{
     RunQueryDsl,
 };
 use crate::{
-    error::AppError, schema::user_tab, settings::AppSettings
+    error::AppError, settings::AppSettings
 };
+use schema::user_tab;
+
+pub mod schema;
 
 pub struct DBClient {
     pub pool: Pool<diesel_async::AsyncMysqlConnection>,

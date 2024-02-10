@@ -6,9 +6,9 @@ use tracing::Span;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use tower_http::trace::TraceLayer;
 
+pub mod auth;
 pub mod service;
 pub mod db;
-pub mod schema;
 pub mod error;
 pub mod settings;
 
@@ -64,7 +64,7 @@ async fn main() {
 fn root_router() -> Router<AppState> {
     let app = Router::new()
         .route("/", get(service::ping))
-        .route("/user", get(service::get_user_by_username))
+        .route("/user", get(service::user::get_user_by_username))
         .route("/login", post(service::login))
         .route("/register", post(service::register));
 
