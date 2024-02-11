@@ -1,23 +1,25 @@
 use axum::{
-    extract::{Query, State}, Form, Json
+    extract::{Path, State}, Form, Json
 };
 use crate::{
-    db::UserModel, error::AppError, AppState
+    db::model::UserModel, error::AppError, AppState
 };
 use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Deserialize)]
-pub struct GetUserByUsernameRequest {
-    username: String,
+#[derive(Debug, Serialize)]
+pub struct GetUserByUsernameResponse {
+    user: UserModel,
 }
 
 pub async fn get_user_by_username(
     State(state): State<AppState>,
-    Query(params): Query<GetUserByUsernameRequest>,
-) -> Result<axum::Json<UserModel>, AppError> {
-    let user = state.db_client.get_user_by_username(&params.username).await?;
+    Path(username): Path<String>,
+) -> Result<Json<GetUserByUsernameResponse>, AppError> {
+    let user = state.db_client.get_user_by_username(&username).await?;
 
-    tracing::debug!("{:?}", params);
+    tracing::debug!("{:?}", username);
 
-    Ok(Json(user))
+    Ok(Json(GetUserByUsernameResponse{
+        user,
+    }))
 }

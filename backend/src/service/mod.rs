@@ -7,6 +7,7 @@ use crate::{
 use serde::{Serialize, Deserialize};
 
 pub mod user;
+pub mod layout;
 
 pub async fn ping(State(_state): State<AppState>) -> &'static str {
     "Hello, World!"

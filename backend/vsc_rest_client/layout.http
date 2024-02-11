@@ -1,0 +1,11 @@
+# Get Layouts
+
+GET http://localhost:3000/layouts
+
+###
+
+# Get Layout
+
+GET http://localhost:3000/layout/1
+
+###

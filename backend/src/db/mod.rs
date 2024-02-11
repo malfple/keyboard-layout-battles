@@ -9,8 +9,12 @@ use crate::{
     error::AppError, settings::AppSettings
 };
 use schema::user_tab;
+use schema::layout_tab;
+use model::UserModel;
+use model::LayoutModel;
 
 pub mod schema;
+pub mod model;
 
 pub struct DBClient {
     pub pool: Pool<diesel_async::AsyncMysqlConnection>,
@@ -50,15 +54,27 @@ impl DBClient {
         
         Ok(result)
     }
-}
 
-#[derive(Queryable, Selectable, serde::Serialize)]
-#[diesel(table_name = user_tab)]
-pub struct UserModel {
-    pub id: u64,
-    pub username: String,
-    pub password: String,
-    pub layout_data: String,
-    pub time_created: i64,
-    pub time_modified: i64,
+    pub async fn get_layout_by_id(&self, id: u64) -> Result<LayoutModel, AppError> {
+        let mut conn = self.pool.get().await?;
+
+        let result = layout_tab::table
+            .filter(layout_tab::id.eq(id))
+            .select(LayoutModel::as_select())
+            .first(&mut conn)
+            .await?;
+
+        Ok(result)
+    }
+
+    pub async fn get_layouts(&self) -> Result<Vec<LayoutModel>, AppError> {
+        let mut conn = self.pool.get().await?;
+
+        let result = layout_tab::table
+            .select(LayoutModel::as_select())
+            .load(&mut conn)
+            .await?;
+
+        Ok(result)
+    }
 }

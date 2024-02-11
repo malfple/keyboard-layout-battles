@@ -22,7 +22,6 @@ Content-Type: application/x-www-form-urlencoded
 
 # Get User data
 
-GET http://localhost:3000/user
-?username=admin
+GET http://localhost:3000/user/admin
 
 ###

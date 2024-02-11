@@ -64,9 +64,11 @@ async fn main() {
 fn root_router() -> Router<AppState> {
     let app = Router::new()
         .route("/", get(service::ping))
-        .route("/user", get(service::user::get_user_by_username))
+        .route("/user/:username", get(service::user::get_user_by_username))
         .route("/login", post(service::login))
-        .route("/register", post(service::register));
+        .route("/register", post(service::register))
+        .route("/layouts", get(service::layout::get_layout_list))
+        .route("/layout/:id", get(service::layout::get_layout));
 
     app
 }
