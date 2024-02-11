@@ -1,10 +1,10 @@
 use axum::{
-    extract::{Path, State}, Form, Json
+    extract::{Path, State}, Json
 };
 use crate::{
     db::model::LayoutModel, error::AppError, AppState
 };
-use serde::{Serialize, Deserialize};
+use serde::Serialize;
 
 #[derive(Debug, Serialize)]
 pub struct GetLayoutListResponse {
