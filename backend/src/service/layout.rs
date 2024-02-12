@@ -2,19 +2,19 @@ use axum::{
     extract::{Path, State}, Json
 };
 use crate::{
-    db::model::LayoutModel, error::AppError, AppState
+    db::model::{LayoutModel, LayoutLiteModel}, error::AppError, AppState
 };
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
 pub struct GetLayoutListResponse {
-    layouts: Vec<LayoutModel>,
+    layouts: Vec<LayoutLiteModel>,
 }
 
 pub async fn get_layout_list(
     State(state): State<AppState>,
 ) -> Result<Json<GetLayoutListResponse>, AppError> {
-    let layouts = state.db_client.get_layouts().await?;
+    let layouts = state.db_client.get_layout_lite_list().await?;
 
     Ok(Json(GetLayoutListResponse{
         layouts,

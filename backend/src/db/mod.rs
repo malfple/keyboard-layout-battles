@@ -12,6 +12,7 @@ use schema::user_tab;
 use schema::layout_tab;
 use model::UserModel;
 use model::LayoutModel;
+use model::LayoutLiteModel;
 
 pub mod schema;
 pub mod model;
@@ -67,11 +68,11 @@ impl DBClient {
         Ok(result)
     }
 
-    pub async fn get_layouts(&self) -> Result<Vec<LayoutModel>, AppError> {
+    pub async fn get_layout_lite_list(&self) -> Result<Vec<LayoutLiteModel>, AppError> {
         let mut conn = self.pool.get().await?;
 
         let result = layout_tab::table
-            .select(LayoutModel::as_select())
+            .select(LayoutLiteModel::as_select())
             .load(&mut conn)
             .await?;
 

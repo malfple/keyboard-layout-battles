@@ -35,6 +35,17 @@ pub struct LayoutModel {
 }
 
 #[derive(Debug, Queryable, Selectable, serde::Serialize)]
+#[diesel(table_name = layout_tab)]
+pub struct LayoutLiteModel {
+    pub id: u64,
+    pub name: String,
+    pub layout_data: String,
+    pub rating: i32,
+    pub rating_comfort: i32,
+    pub is_active: bool,
+}
+
+#[derive(Debug, Queryable, Selectable, serde::Serialize)]
 #[diesel(table_name = user_tab)]
 pub struct UserModel {
     pub id: u64,
