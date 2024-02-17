@@ -4,6 +4,7 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum AppError {
+    // self defined errors
     #[error("Something is wrong with the layout format or it is invalid: {0}")]
     LayoutFormat(String),
     #[error("cannot have a battle with 2 identical layouts")]
@@ -17,6 +18,8 @@ pub enum AppError {
     DieselResult(#[from] diesel::result::Error),
     #[error("bcrypt error")]
     BcryptError(#[from] bcrypt::BcryptError),
+    #[error("jsonwebtoken error")]
+    JsonWebToken(#[from] jsonwebtoken::errors::Error),
 }
 
 #[derive(Debug, serde::Serialize, Clone)]
@@ -30,23 +33,24 @@ impl IntoResponse for AppError {
         tracing::error!("error_response: {:?}", self);
 
         match self {
-            AppError::LayoutFormat(_) => bad_request_error(self.to_string()),
-            AppError::BattleIdenticalLayout => bad_request_error(self.to_string()),
-            AppError::BattleNotFound => not_found_error(),
-            AppError::DeadPool(_) => internal_server_error(),
+            AppError::LayoutFormat(_) => bad_request_error_response(self.to_string()),
+            AppError::BattleIdenticalLayout => bad_request_error_response(self.to_string()),
+            AppError::BattleNotFound => not_found_error_response(),
+            AppError::DeadPool(_) => internal_server_error_response(),
             AppError::DieselResult(err) => {
                 if err == diesel::result::Error::NotFound {
-                    not_found_error()
+                    not_found_error_response()
                 } else {
-                    internal_server_error()
+                    internal_server_error_response()
                 }
             },
-            AppError::BcryptError(_) => internal_server_error(),
+            AppError::BcryptError(_) => internal_server_error_response(),
+            AppError::JsonWebToken(_) => bad_request_error_response(self.to_string()),
         }
     }
 }
 
-fn not_found_error() -> Response {
+fn not_found_error_response() -> Response {
     (
         StatusCode::NOT_FOUND,
         Json(ErrorResponse{
@@ -56,7 +60,7 @@ fn not_found_error() -> Response {
     ).into_response()
 }
 
-fn bad_request_error(msg: String) -> Response {
+pub fn bad_request_error_response(msg: String) -> Response {
     (
         StatusCode::BAD_REQUEST,
         Json(ErrorResponse{
@@ -66,7 +70,7 @@ fn bad_request_error(msg: String) -> Response {
     ).into_response()
 }
 
-fn internal_server_error() -> Response {
+fn internal_server_error_response() -> Response {
     (
         StatusCode::INTERNAL_SERVER_ERROR,
         Json(ErrorResponse{

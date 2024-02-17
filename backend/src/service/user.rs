@@ -11,6 +11,7 @@ pub struct GetUserByUsernameResponse {
     user: UserModel,
 }
 
+/// Get user API
 pub async fn get_user_by_username(
     State(state): State<AppState>,
     Path(username): Path<String>,

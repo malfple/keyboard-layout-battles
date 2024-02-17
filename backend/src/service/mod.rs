@@ -8,6 +8,7 @@ use serde::{Serialize, Deserialize};
 
 pub mod user;
 pub mod layout;
+pub mod battle;
 
 pub async fn ping(State(_state): State<AppState>) -> &'static str {
     "Hello, World!"
@@ -26,6 +27,7 @@ pub struct LoginResponse {
     access_token: Option<String>,
 }
 
+/// Simple Login API
 pub async fn login(
     State(state): State<AppState>,
     Form(req): Form<LoginRequest>,
@@ -60,6 +62,7 @@ pub struct RegisterResponse{
     message: String,
 }
 
+/// Simple register API
 pub async fn register(
     State(state): State<AppState>,
     Form(req): Form<RegisterRequest>,

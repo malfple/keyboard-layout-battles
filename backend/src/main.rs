@@ -1,6 +1,6 @@
 use std::{sync::Arc, time::Duration};
 use axum::{
-    extract::MatchedPath, http::{Request, Response}, routing::{get, post}, Router
+    extract::MatchedPath, http::{Request, Response}, middleware::{from_fn, from_fn_with_state}, routing::{get, post}, Router
 };
 use battle_engine::BattleEngine;
 use tracing::Span;
@@ -14,6 +14,7 @@ pub mod error;
 pub mod settings;
 pub mod battle_engine;
 pub mod wordlist;
+pub mod middleware;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -39,7 +40,7 @@ async fn main() {
         battle_engine: Arc::new(BattleEngine::new()),
     };
 
-    let app = root_router()
+    let app = root_router(&state)
         .layer(TraceLayer::new_for_http()
             .make_span_with(|request: &Request<_>| {
                 let matched_path = request
@@ -66,14 +67,23 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
-fn root_router() -> Router<AppState> {
+fn root_router(state: &AppState) -> Router<AppState> {
     let app = Router::new()
         .route("/", get(service::ping))
         .route("/user/:username", get(service::user::get_user_by_username))
         .route("/login", post(service::login))
         .route("/register", post(service::register))
         .route("/layouts", get(service::layout::get_layout_list))
-        .route("/layout/:id", get(service::layout::get_layout));
+        .route("/layout/:id", get(service::layout::get_layout))
+        .merge(battle_router(&state));
+
+    app
+}
+
+fn battle_router(state: &AppState) -> Router<AppState> {
+    let app = Router::new()
+        .route("/battle", post(service::battle::create_battle))
+        .layer(from_fn_with_state(state.clone(), middleware::relaxed_auth_middleware));
 
     app
 }

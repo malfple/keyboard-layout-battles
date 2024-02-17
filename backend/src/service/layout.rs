@@ -11,6 +11,7 @@ pub struct GetLayoutListResponse {
     layouts: Vec<LayoutLiteModel>,
 }
 
+/// Get Layout list API
 pub async fn get_layout_list(
     State(state): State<AppState>,
 ) -> Result<Json<GetLayoutListResponse>, AppError> {
@@ -26,6 +27,7 @@ pub struct GetLayoutResponse {
     layout: LayoutModel,
 }
 
+/// Get layout API
 pub async fn get_layout(
     State(state): State<AppState>,
     Path(id): Path<u64>,
