@@ -7,7 +7,7 @@ pub struct BattleHistoryModel {
     pub id: u64,
     pub layout_id_1: u64,
     pub layout_id_2: u64,
-    pub layout_data_typer: String,
+    pub base_layout_data: String,
     pub user_id_typer: u64,
     pub content_data: serde_json::Value,
     pub layout_1_rating: i32,
@@ -29,7 +29,6 @@ pub struct LayoutModel {
     pub rating: i32,
     pub rating_comfort: i32,
     pub rating_data: Option<serde_json::Value>,
-    pub is_active: bool,
     pub time_created: i64,
     pub time_modified: i64,
 }
@@ -42,7 +41,6 @@ pub struct LayoutLiteModel {
     pub layout_data: String,
     pub rating: i32,
     pub rating_comfort: i32,
-    pub is_active: bool,
 }
 
 #[derive(Debug, Queryable, Selectable, serde::Serialize)]

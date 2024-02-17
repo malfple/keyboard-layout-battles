@@ -1,9 +1,8 @@
-use diesel::prelude::*;
+use diesel::{prelude::*, result::Error};
 use diesel_async::{
     pooled_connection::{
         deadpool::Pool, AsyncDieselConnectionManager
-    },
-    RunQueryDsl,
+    }, AsyncConnection, RunQueryDsl
 };
 use crate::{
     error::AppError, settings::AppSettings
@@ -78,4 +77,18 @@ impl DBClient {
 
         Ok(result)
     }
+
+    // pub async fn update_layout_ratings_and_create_battle_history<F>(
+    //     &self,
+    // ) -> Result<(), AppError> {
+    //     let mut conn = self.pool.get().await?;
+
+    //     let res = conn.transaction::<_, Error, _>(|conn| {
+
+
+    //         Ok(())
+    //     });
+
+    //     Ok(())
+    // }
 }
