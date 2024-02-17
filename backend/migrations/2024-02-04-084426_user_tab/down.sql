@@ -2,4 +2,5 @@
 
 DROP TABLE user_tab;
 DROP TABLE layout_tab;
+DROP TABLE battle_tab;
 DROP TABLE battle_history_tab;

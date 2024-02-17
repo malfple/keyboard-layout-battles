@@ -36,6 +36,19 @@ VALUES
     ('qdrwbjfup;ashtgyneoi''zxmcvkl,./', 1500, 1500, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 'Workman'),
     ('ypoujkdlcwinea,mhtsr''qz/.:bfgvx', 1500, 1500, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 'MTGAP');
 
+CREATE TABLE battle_tab(
+    id VARCHAR(32) NOT NULL,
+    layout_id_1 BIGINT UNSIGNED NOT NULL,
+    layout_id_2 BIGINT UNSIGNED NOT NULL,
+    base_layout_data VARCHAR(64) NOT NULL,
+    user_id_typer BIGINT UNSIGNED NOT NULL,
+    content_data JSON NOT NULL,
+    is_personal BOOLEAN NOT NULL,
+    time_created BIGINT NOT NULL,
+    time_modified BIGINT NOT NULL,
+    PRIMARY KEY(id)
+);
+
 CREATE TABLE battle_history_tab(
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     layout_id_1 BIGINT UNSIGNED NOT NULL,
@@ -51,4 +64,4 @@ CREATE TABLE battle_history_tab(
     is_personal BOOLEAN NOT NULL,
     time_created BIGINT NOT NULL,
     PRIMARY KEY(id)
-)
+);

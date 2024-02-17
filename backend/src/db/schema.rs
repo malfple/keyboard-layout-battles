@@ -20,6 +20,22 @@ diesel::table! {
 }
 
 diesel::table! {
+    battle_tab (id) {
+        #[max_length = 32]
+        id -> Varchar,
+        layout_id_1 -> Unsigned<Bigint>,
+        layout_id_2 -> Unsigned<Bigint>,
+        #[max_length = 64]
+        base_layout_data -> Varchar,
+        user_id_typer -> Unsigned<Bigint>,
+        content_data -> Json,
+        is_personal -> Bool,
+        time_created -> Bigint,
+        time_modified -> Bigint,
+    }
+}
+
+diesel::table! {
     layout_tab (id) {
         id -> Unsigned<Bigint>,
         #[max_length = 32]
@@ -52,6 +68,7 @@ diesel::table! {
 
 diesel::allow_tables_to_appear_in_same_query!(
     battle_history_tab,
+    battle_tab,
     layout_tab,
     user_tab,
 );

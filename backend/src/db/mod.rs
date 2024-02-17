@@ -7,11 +7,8 @@ use diesel_async::{
 use crate::{
     error::AppError, settings::AppSettings
 };
-use schema::user_tab;
-use schema::layout_tab;
-use model::UserModel;
-use model::LayoutModel;
-use model::LayoutLiteModel;
+use schema::*;
+use model::*;
 
 pub mod schema;
 pub mod model;
@@ -73,6 +70,32 @@ impl DBClient {
         let result = layout_tab::table
             .select(LayoutLiteModel::as_select())
             .load(&mut conn)
+            .await?;
+
+        Ok(result)
+    }
+
+    pub async fn create_battle(
+        &self,
+        battle: BattleModel,
+    ) -> Result<usize, AppError> {
+        let mut conn = self.pool.get().await?;
+
+        let result = diesel::insert_into(battle_tab::table)
+            .values(&battle)
+            .execute(&mut conn)
+            .await?;
+
+        Ok(result)
+    }
+
+    pub async fn get_battle(&self, id: &str) -> Result<BattleModel, AppError> {
+        let mut conn = self.pool.get().await?;
+
+        let result = battle_tab::table
+            .filter(battle_tab::id.eq(id))
+            .select(BattleModel::as_select())
+            .first(&mut conn)
             .await?;
 
         Ok(result)
