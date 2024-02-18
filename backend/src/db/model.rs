@@ -37,6 +37,7 @@ pub struct BattleModel {
 #[diesel(table_name = layout_tab)]
 pub struct LayoutModel {
     pub id: u64,
+    pub sequence_id: Option<u64>,
     pub name: String,
     pub layout_data: String,
     pub description: Option<String>,

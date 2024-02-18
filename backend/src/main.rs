@@ -2,7 +2,6 @@ use std::{sync::Arc, time::Duration};
 use axum::{
     extract::MatchedPath, http::{Request, Response}, middleware::{from_fn, from_fn_with_state}, routing::{get, post}, Router
 };
-use battle_engine::BattleEngine;
 use tracing::Span;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use tower_http::trace::TraceLayer;
@@ -12,15 +11,14 @@ pub mod service;
 pub mod db;
 pub mod error;
 pub mod settings;
-pub mod battle_engine;
-pub mod wordlist;
+pub mod words;
 pub mod middleware;
 
 #[derive(Clone)]
 pub struct AppState {
     pub db_client: Arc<db::DBClient>,
     pub settings: Arc<settings::AppSettings>,
-    pub battle_engine: Arc<BattleEngine>,
+    pub wordlist: Arc<words::Wordlist>
 }
 
 #[tokio::main]
@@ -37,7 +35,7 @@ async fn main() {
     let state = AppState{
         db_client: Arc::new(db::DBClient::new(&settings)),
         settings: Arc::new(settings),
-        battle_engine: Arc::new(BattleEngine::new()),
+        wordlist: Arc::new(words::Wordlist::new()),
     };
 
     let app = root_router(&state)

@@ -1,7 +1,7 @@
 use diesel::{prelude::*, result::Error};
 use diesel_async::{
     pooled_connection::{
-        deadpool::Pool, AsyncDieselConnectionManager
+        deadpool::{Object, Pool}, AsyncDieselConnectionManager
     }, AsyncConnection, RunQueryDsl
 };
 use crate::{
@@ -26,6 +26,8 @@ impl DBClient {
             pool,
         }
     }
+
+    // Users
 
     pub async fn create_user(&self, username: &str, hashed_password: &str) -> Result<usize, AppError> {
         let mut conn = self.pool.get().await?;
@@ -52,6 +54,8 @@ impl DBClient {
         Ok(result)
     }
 
+    // Layouts
+
     pub async fn get_layout_by_id(&self, id: u64) -> Result<LayoutModel, AppError> {
         let mut conn = self.pool.get().await?;
 
@@ -74,6 +78,32 @@ impl DBClient {
 
         Ok(result)
     }
+
+    pub async fn get_layout_max_sequence_id(&self) -> Result<u64, AppError> {
+        let mut conn = self.pool.get().await?;
+
+        let result: Option<u64> = layout_tab::table
+            .select(diesel::dsl::max(layout_tab::sequence_id))
+            .first(&mut conn)
+            .await?;
+
+        Ok(result.unwrap_or(0)) // if no id found, then set to 0
+    }
+
+    pub async fn get_active_layout_by_sequence_id(&self, sequence_id: u64) -> Result<LayoutModel, AppError> {
+        let mut conn = self.pool.get().await?;
+
+        let result = layout_tab::table
+            .filter(layout_tab::sequence_id.le(sequence_id)) // use <= to safeguard
+            .filter(layout_tab::sequence_id.is_not_null()) // active layout have non-NULL sequence_id
+            .select(LayoutModel::as_select())
+            .first(&mut conn)
+            .await?;
+
+        Ok(result)
+    }
+
+    // battles
 
     pub async fn create_battle(
         &self,

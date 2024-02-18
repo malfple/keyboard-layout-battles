@@ -38,6 +38,7 @@ diesel::table! {
 diesel::table! {
     layout_tab (id) {
         id -> Unsigned<Bigint>,
+        sequence_id -> Nullable<Unsigned<Bigint>>,
         #[max_length = 32]
         name -> Varchar,
         #[max_length = 64]

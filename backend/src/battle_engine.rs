@@ -5,7 +5,7 @@ use rand::Rng;
 
 use crate::db::model::{LayoutModel, UserModel};
 use crate::error::AppError;
-use crate::wordlist::Wordlist;
+use crate::words::Wordlist;
 
 const WORD_COUNT: usize = 3;
 
@@ -161,25 +161,6 @@ pub struct Battle {
     is_personal: bool,
 }
 
-fn translate_word(word: &str, base_layout_data: &str, target_layout_data: &str) -> Result<String, AppError> {
-    // works regardless of the layout format, but both has to be the same
-    if base_layout_data.len() != target_layout_data.len() {
-        return Err(AppError::LayoutFormat(format!(
-            "length of layout {0} and {1} is not the same", base_layout_data, target_layout_data
-        )));
-    }
-
-    let mut res = String::with_capacity(word.len());
-    for c in word.chars() {
-        match target_layout_data.find(c) {
-            Some(idx) => res.push(base_layout_data.as_bytes()[idx] as char),
-            None => return Err(AppError::LayoutFormat(format!("incomplete charset {0}", target_layout_data))),
-        }
-    }
-
-    Ok(res)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -255,15 +236,6 @@ mod tests {
         assert_eq!(engine.retrieve_battle(&id), Some(battle.clone()));
         assert_eq!(engine.retrieve_battle(&id), None);
         assert_eq!(engine.store.len(), 0);
-    }
-
-    #[test]
-    fn test_translate_word() {
-        let (base_layout, target_layout, _, invalid_layout) = setup_layouts();
-        
-        assert_eq!(translate_word("arena", &base_layout.layout_data, &target_layout.layout_data).unwrap(), "askja".to_owned());
-        assert_eq!(translate_word("work", &base_layout.layout_data, &target_layout.layout_data).unwrap(), "w;sn".to_owned());
-        assert!(matches!(translate_word("arena", &base_layout.layout_data, &invalid_layout.layout_data).unwrap_err(), AppError::LayoutFormat(..)));
     }
 
     #[test]

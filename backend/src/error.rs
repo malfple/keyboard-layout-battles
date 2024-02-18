@@ -4,6 +4,9 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum AppError {
+    // general errors
+    #[error("Bad Request: {0}")]
+    BadRequest(String),
     // self defined errors
     #[error("Something is wrong with the layout format or it is invalid: {0}")]
     LayoutFormat(String),
@@ -11,6 +14,8 @@ pub enum AppError {
     BattleIdenticalLayout,
     #[error("battle not found")]
     BattleNotFound,
+    #[error("Not enough active layouts to start battle")]
+    NotEnoughLayoutsForBattle,
     // Library Errors
     #[error("connection pool failure")]
     DeadPool(#[from] deadpool::PoolError),
@@ -33,9 +38,11 @@ impl IntoResponse for AppError {
         tracing::error!("error_response: {:?}", self);
 
         match self {
+            AppError::BadRequest(_) => bad_request_error_response(self.to_string()),
             AppError::LayoutFormat(_) => bad_request_error_response(self.to_string()),
             AppError::BattleIdenticalLayout => bad_request_error_response(self.to_string()),
             AppError::BattleNotFound => not_found_error_response(),
+            AppError::NotEnoughLayoutsForBattle => bad_request_error_response(self.to_string()),
             AppError::DeadPool(_) => internal_server_error_response(),
             AppError::DieselResult(err) => {
                 if err == diesel::result::Error::NotFound {
