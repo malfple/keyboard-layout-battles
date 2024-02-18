@@ -1,4 +1,5 @@
 @accessToken = {{login.response.body.access_token}}
+@battleID = {{create_battle.response.body.id}}
 
 # Login
 
@@ -13,13 +14,36 @@ Content-Type: application/x-www-form-urlencoded
 
 # Create Battle
 
+# @name create_battle
 POST http://localhost:3000/battle
 Content-Type: application/json
-# Authorization: Bearer {{accessToken}}
+Authorization: Bearer {{accessToken}}
 
 {
     "base_layout_data": "qwertyuiopasdfghjkl;'zxcvbnm,./",
     "is_personal": false
+}
+
+###
+
+# Finalize Battle
+
+PUT http://localhost:3000/battle
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "id": "laZC0qVj-H7e_aiGkH0ek",
+    "times": [
+        [1000, 1200],
+        [1100, 1000],
+        [1000, 1100]
+    ],
+    "comfort_choice": [
+        1,
+        2,
+        1
+    ]
 }
 
 ###

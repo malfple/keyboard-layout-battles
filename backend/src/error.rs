@@ -9,6 +9,8 @@ pub enum AppError {
     BadRequest(String),
     #[error("Invalid parameter: {0}")]
     InvalidParameter(String),
+    #[error("Unauthorized")]
+    Unauthorized,
     // self defined errors
     #[error("Something is wrong with the layout format or it is invalid: {0}")]
     LayoutFormat(String),
@@ -44,6 +46,7 @@ impl IntoResponse for AppError {
         match self {
             AppError::BadRequest(_) => bad_request_error_response(self.to_string()),
             AppError::InvalidParameter(_) => bad_request_error_response(self.to_string()),
+            AppError::Unauthorized => unauthorized_error_response(),
             AppError::LayoutFormat(_) => bad_request_error_response(self.to_string()),
             AppError::BattleIdenticalLayout => bad_request_error_response(self.to_string()),
             AppError::BattleNotFound => not_found_error_response(),
@@ -63,16 +66,6 @@ impl IntoResponse for AppError {
     }
 }
 
-fn not_found_error_response() -> Response {
-    (
-        StatusCode::NOT_FOUND,
-        Json(ErrorResponse{
-            error: String::from("not_found"),
-            error_message: None,
-        }),
-    ).into_response()
-}
-
 pub fn bad_request_error_response(msg: String) -> Response {
     (
         StatusCode::BAD_REQUEST,
@@ -80,6 +73,26 @@ pub fn bad_request_error_response(msg: String) -> Response {
             error: String::from("bad_request"),
             error_message: Some(msg),
         })
+    ).into_response()
+}
+
+fn unauthorized_error_response() -> Response {
+    (
+        StatusCode::UNAUTHORIZED,
+        Json(ErrorResponse{
+            error: String::from("unauthorized"),
+            error_message: None,
+        })
+    ).into_response()
+}
+
+fn not_found_error_response() -> Response {
+    (
+        StatusCode::NOT_FOUND,
+        Json(ErrorResponse{
+            error: String::from("not_found"),
+            error_message: None,
+        }),
     ).into_response()
 }
 

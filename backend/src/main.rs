@@ -1,6 +1,6 @@
 use std::{sync::Arc, time::Duration};
 use axum::{
-    extract::MatchedPath, http::{Request, Response}, middleware::from_fn_with_state, routing::{get, post}, Router
+    extract::MatchedPath, http::{Request, Response}, middleware::from_fn_with_state, routing::{get, post, put}, Router
 };
 use tracing::Span;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -82,6 +82,7 @@ fn root_router(state: &AppState) -> Router<AppState> {
 fn battle_router(state: &AppState) -> Router<AppState> {
     let app = Router::new()
         .route("/battle", post(service::battle::create_battle))
+        .route("/battle", put(service::battle::finalize_battle))
         .layer(from_fn_with_state(state.clone(), middleware::relaxed_auth_middleware));
 
     app
