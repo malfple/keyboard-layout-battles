@@ -1,4 +1,4 @@
-use diesel::{prelude::*};
+use diesel::prelude::*;
 use super::schema::*;
 
 #[derive(Debug, Queryable, Selectable, serde::Serialize)]

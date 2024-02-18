@@ -1,6 +1,6 @@
 use std::{sync::Arc, time::Duration};
 use axum::{
-    extract::MatchedPath, http::{Request, Response}, middleware::{from_fn, from_fn_with_state}, routing::{get, post}, Router
+    extract::MatchedPath, http::{Request, Response}, middleware::from_fn_with_state, routing::{get, post}, Router
 };
 use tracing::Span;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};

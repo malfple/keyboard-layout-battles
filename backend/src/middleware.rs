@@ -1,8 +1,7 @@
-use axum::{extract::{Request, State}, http::HeaderMap, middleware::Next, response::{IntoResponse, Response}};
+use axum::{extract::{Request, State}, middleware::Next, response::{IntoResponse, Response}};
 use axum_extra::{headers::{authorization::Bearer, Authorization}, TypedHeader};
-use jsonwebtoken::TokenData;
 
-use crate::{auth::{self, TokenClaims}, error::{self, AppError}, AppState};
+use crate::{auth, AppState};
 
 #[derive(Debug, Clone)]
 pub struct Identity {

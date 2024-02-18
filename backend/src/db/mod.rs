@@ -1,8 +1,8 @@
-use diesel::{prelude::*, result::Error};
+use diesel::prelude::*;
 use diesel_async::{
     pooled_connection::{
-        deadpool::{Object, Pool}, AsyncDieselConnectionManager
-    }, AsyncConnection, RunQueryDsl
+        deadpool::Pool, AsyncDieselConnectionManager
+    }, RunQueryDsl
 };
 use crate::{
     error::AppError, settings::AppSettings
