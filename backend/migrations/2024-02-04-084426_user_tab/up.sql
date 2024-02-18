@@ -56,7 +56,7 @@ CREATE TABLE battle_history_tab(
     layout_id_1 BIGINT UNSIGNED NOT NULL,
     layout_id_2 BIGINT UNSIGNED NOT NULL,
     base_layout_data VARCHAR(64) NOT NULL,
-    user_id_typer BIGINT UNSIGNED NOT NULL,
+    user_id_typer BIGINT UNSIGNED,
     layout_1_rating INT NOT NULL,
     layout_2_rating INT NOT NULL,
     rating_1_gain INT NOT NULL,

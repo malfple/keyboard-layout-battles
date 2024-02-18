@@ -33,7 +33,7 @@ Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-    "id": "laZC0qVj-H7e_aiGkH0ek",
+    "id": "{{battleID}}",
     "times": [
         [1000, 1200],
         [1100, 1000],

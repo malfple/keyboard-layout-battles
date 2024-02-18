@@ -4,7 +4,7 @@ use axum::{
 use rand::Rng;
 use skillratings::{glicko::{glicko, GlickoConfig}, Outcomes};
 use crate::{
-    db::{json::{decode_content_data, decode_rating_data, ContentData, WordData},
+    db::{json::{decode_content_data, ContentData, ContentWordData, RatingData, ResultData, ResultWordData},
     model::LayoutModel, DBClient}, error::AppError, layout_validation::validate_layout_data, middleware::Identity, words::translate_word, AppState
 };
 use serde::{Serialize, Deserialize};
@@ -49,13 +49,13 @@ pub async fn create_battle(
     tracing::debug!("random 2 layouts {:?}, {:?}", layout_1, layout_2);
 
     // generate content
-    let mut content_data = ContentData{
+    let mut content = ContentData{
         words: Vec::new(),
     };
     let words = state.wordlist.random_words_with_limit(WORD_COUNT, MAX_WORD_LEN);
 
     for word in words {
-        content_data.words.push(WordData{
+        content.words.push(ContentWordData{
             original: word.to_owned(),
             translated_1: translate_word(word, &req.base_layout_data, &layout_1.layout_data)?,
             translated_2: translate_word(word, &req.base_layout_data, &layout_2.layout_data)?,
@@ -64,7 +64,7 @@ pub async fn create_battle(
     }
 
     let mut words_for_resp = Vec::new();
-    for content_word in content_data.words.iter() {
+    for content_word in content.words.iter() {
         words_for_resp.push(
             if !content_word.should_swap {
                 (content_word.translated_1.clone(), content_word.translated_2.clone())
@@ -89,7 +89,7 @@ pub async fn create_battle(
         layout_2.id, 
         req.base_layout_data,
         user_id_typer,
-        content_data,
+        content,
         req.is_personal).await?;
 
     // construct resp
@@ -136,7 +136,9 @@ pub struct FinalizeBattleRequest {
 
 #[derive(Debug, Serialize)]
 pub struct FinalizeBattleResponse {
-
+    layout_id_1: u64,
+    layout_id_2: u64,
+    result_data: ResultData,
 }
 
 /// Finalize battle API
@@ -172,57 +174,71 @@ pub async fn finalize_battle(
         }
     }
 
-    let content_data = decode_content_data(battle.content_data)?;
-    let layout_1 = state.db_client.get_layout_by_id(battle.layout_id_1).await?;
-    let mut rating_data_1 = decode_rating_data(layout_1.rating_data, layout_1.rating, layout_1.rating_comfort)?;
-    let layout_2 = state.db_client.get_layout_by_id(battle.layout_id_2).await?;
-    let mut rating_data_2 = decode_rating_data(layout_2.rating_data, layout_2.rating, layout_2.rating_comfort)?;
+    let content = decode_content_data(battle.content_data)?;
 
     // calculate score
-    let mut score = 0; // positive = first wins, negative = second wins
+    let mut result = ResultData{
+        words: Vec::new(),
+        score: 0, // positive = first wins, negative = second wins
+        comfort_score: 0, // same as above
+    };
     for i in 0..WORD_COUNT {
-        let (time_1, time_2) = if !content_data.words[i].should_swap {
+        let content_word = &content.words[i];
+        // time
+        let (time_1, time_2) = if !content_word.should_swap {
             (req.times[i].0, req.times[i].1)
         } else {
             (req.times[i].1, req.times[i].0)
         };
 
         if time_1 < time_2 {
-            score += 1;
+            result.score += 1;
         } else if time_1 > time_2 {
-            score -= 1;
+            result.score -= 1;
         } // if draw = do nothing
-    }
 
-    let mut comfort_score = 0;
-    for choice in req.comfort_choice {
-        match choice {
-            1 => comfort_score += 1,
-            2 => comfort_score -= 1,
+        // comfort
+        let comfort = if !content_word.should_swap {
+            req.comfort_choice[i]
+        } else {
+            if req.comfort_choice[i] == 1 {2} else {1}
+        };
+        match comfort {
+            1 => result.comfort_score += 1,
+            2 => result.comfort_score -= 1,
             _ => tracing::error!("comfort choice error"),
         }
+        // push to result
+        result.words.push(ResultWordData{
+            original: content_word.original.clone(), // TODO: optimize
+            translated_1: content_word.translated_1.clone(),
+            translated_2: content_word.translated_2.clone(),
+            time_1,
+            time_2,
+            comfort_choice: comfort,
+        })
     }
 
-    // calculate rating
-    tracing::debug!("old rating data {:?} {:?}", rating_data_1, rating_data_2);
-
-    let config = GlickoConfig::new();
-    (rating_data_1.global, rating_data_2.global) = glicko(
-        &rating_data_1.global,
-        &rating_data_2.global,
-        &calc_outcome(score),
-        &config);
-    (rating_data_1.comfort, rating_data_2.comfort) = glicko(
-        &rating_data_1.comfort,
-        &rating_data_2.comfort,
-        &calc_outcome(comfort_score),
-        &config);
-
-    tracing::debug!("new rating data {:?} {:?}", rating_data_1, rating_data_2);
-
     // commit to history
+    let rows_affected = state.db_client.make_battle_history_and_update_ratings(
+        &req.id,
+        battle.layout_id_1,
+        battle.layout_id_2,
+        battle.base_layout_data,
+        battle.user_id_typer,
+        result.clone(),
+        battle.is_personal,
+        update_rating
+    ).await?;
+    
+    tracing::debug!("Create battle history, rows affected {}", rows_affected);
 
-    Err(AppError::BattleNotFound)
+    // construct resp
+    Ok(Json(FinalizeBattleResponse{
+        layout_id_1: battle.layout_id_1,
+        layout_id_2: battle.layout_id_2,
+        result_data: result,
+    }))
 }
 
 fn validate_comfort_choice(comfort: i32) -> bool {
@@ -237,4 +253,23 @@ fn calc_outcome(score: i32) -> Outcomes {
     } else {
         Outcomes::DRAW
     }
+}
+
+/// Updates rating in-place
+fn update_rating(rating_1: &mut RatingData, rating_2: &mut RatingData, score: i32, comfort_score: i32) {
+    tracing::debug!("old rating data {:?} {:?}", rating_1, rating_2);
+
+    let config = GlickoConfig::new();
+    (rating_1.global, rating_2.global) = glicko(
+        &rating_1.global,
+        &rating_2.global,
+        &calc_outcome(score),
+        &config);
+    (rating_1.comfort, rating_2.comfort) = glicko(
+        &rating_1.comfort,
+        &rating_2.comfort,
+        &calc_outcome(comfort_score),
+        &config);
+
+    tracing::debug!("new rating data {:?} {:?}", rating_1, rating_2);
 }
