@@ -8,7 +8,6 @@ diesel::table! {
         #[max_length = 64]
         base_layout_data -> Varchar,
         user_id_typer -> Unsigned<Bigint>,
-        content_data -> Json,
         layout_1_rating -> Integer,
         layout_2_rating -> Integer,
         rating_1_gain -> Integer,
@@ -27,7 +26,7 @@ diesel::table! {
         layout_id_2 -> Unsigned<Bigint>,
         #[max_length = 64]
         base_layout_data -> Varchar,
-        user_id_typer -> Unsigned<Bigint>,
+        user_id_typer -> Nullable<Unsigned<Bigint>>,
         content_data -> Json,
         is_personal -> Bool,
         time_created -> Bigint,

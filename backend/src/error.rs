@@ -7,6 +7,8 @@ pub enum AppError {
     // general errors
     #[error("Bad Request: {0}")]
     BadRequest(String),
+    #[error("Invalid parameter: {0}")]
+    InvalidParameter(String),
     // self defined errors
     #[error("Something is wrong with the layout format or it is invalid: {0}")]
     LayoutFormat(String),
@@ -25,6 +27,8 @@ pub enum AppError {
     BcryptError(#[from] bcrypt::BcryptError),
     #[error("jsonwebtoken error")]
     JsonWebToken(#[from] jsonwebtoken::errors::Error),
+    #[error("serde json error")]
+    SerdeJsonError(#[from] serde_json::error::Error),
 }
 
 #[derive(Debug, serde::Serialize, Clone)]
@@ -39,6 +43,7 @@ impl IntoResponse for AppError {
 
         match self {
             AppError::BadRequest(_) => bad_request_error_response(self.to_string()),
+            AppError::InvalidParameter(_) => bad_request_error_response(self.to_string()),
             AppError::LayoutFormat(_) => bad_request_error_response(self.to_string()),
             AppError::BattleIdenticalLayout => bad_request_error_response(self.to_string()),
             AppError::BattleNotFound => not_found_error_response(),
@@ -53,6 +58,7 @@ impl IntoResponse for AppError {
             },
             AppError::BcryptError(_) => internal_server_error_response(),
             AppError::JsonWebToken(_) => bad_request_error_response(self.to_string()),
+            AppError::SerdeJsonError(_) => internal_server_error_response(),
         }
     }
 }

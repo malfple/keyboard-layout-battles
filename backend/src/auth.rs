@@ -13,6 +13,7 @@ pub struct TokenClaims {
     pub exp: u64,
     pub iss: String,
     pub sub: String,
+    pub sub_id: u64,
 }
 
 pub fn hash_password(password: &str) -> Result<String, AppError> {
@@ -21,11 +22,12 @@ pub fn hash_password(password: &str) -> Result<String, AppError> {
     Ok(hashed_password)
 }
 
-pub fn generate_access_token(username: &str, token_secret: &str) -> String {
+pub fn generate_access_token(user_id: u64, username: &str, token_secret: &str) -> String {
     let claims = TokenClaims{
         exp: SystemTime::now().duration_since(UNIX_EPOCH).expect("time went backwards").as_millis() as u64 + TOKEN_EXP,
         iss: String::from(TOKEN_ISSUER),
         sub: String::from(username),
+        sub_id: user_id,
     };
 
     let token = encode(&Header::default(), &claims, &EncodingKey::from_secret(token_secret.as_ref())).expect("should be no error in generating jwt");

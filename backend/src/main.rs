@@ -13,6 +13,7 @@ pub mod error;
 pub mod settings;
 pub mod words;
 pub mod middleware;
+pub mod layout_validation;
 
 #[derive(Clone)]
 pub struct AppState {

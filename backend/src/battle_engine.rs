@@ -169,7 +169,7 @@ mod tests {
         let base_layout = LayoutModel{
             id: 1,
             name: "Qwerty".into(),
-            layout_data: "qwertyuiopasdfghjkl;''zxcvbnm,./".into(),
+            layout_data: "qwertyuiopasdfghjkl;'zxcvbnm,./".into(),
             description: None,
             rating: 1500,
             rating_comfort: 1500,
@@ -180,7 +180,7 @@ mod tests {
         let target_layout = LayoutModel{
             id: 2,
             name: "Colemak-DH".into(),
-            layout_data: "qwfpbjluy;arstgmneio''zxcdvkh,./".into(),
+            layout_data: "qwfpbjluy;arstgmneio'zxcdvkh,./".into(),
             description: None,
             rating: 1500,
             rating_comfort: 1500,
@@ -191,7 +191,7 @@ mod tests {
         let target_layout_2 = LayoutModel{
             id: 3,
             name: "MTGAP".into(),
-            layout_data: "ypoujkdlcwinea,mhtsr''qz/.:bfgvx".into(),
+            layout_data: "ypoujkdlcwinea,mhtsr'qz/.:bfgvx".into(),
             description: None,
             rating: 1500,
             rating_comfort: 1500,
@@ -202,7 +202,7 @@ mod tests {
         let invalid_layout = LayoutModel{
             id: 4,
             name: "missing string".into(),
-            layout_data: "qwfpbjluy;arstgmneio''zxcdvkh,.".into(),
+            layout_data: "qwfpbjluy;arstgmneio'zxcdvkh,.".into(),
             description: None,
             rating: 1500,
             rating_comfort: 1500,

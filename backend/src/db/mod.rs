@@ -1,3 +1,5 @@
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use diesel::prelude::*;
 use diesel_async::{
     pooled_connection::{
@@ -10,8 +12,11 @@ use crate::{
 use schema::*;
 use model::*;
 
+use self::json::ContentData;
+
 pub mod schema;
 pub mod model;
+pub mod json;
 
 pub struct DBClient {
     pub pool: Pool<diesel_async::AsyncMysqlConnection>,
@@ -90,12 +95,11 @@ impl DBClient {
         Ok(result.unwrap_or(0)) // if no id found, then set to 0
     }
 
-    pub async fn get_active_layout_by_sequence_id(&self, sequence_id: u64) -> Result<LayoutModel, AppError> {
+    pub async fn get_layout_by_sequence_id(&self, sequence_id: u64) -> Result<LayoutModel, AppError> {
         let mut conn = self.pool.get().await?;
 
         let result = layout_tab::table
-            .filter(layout_tab::sequence_id.le(sequence_id)) // use <= to safeguard
-            .filter(layout_tab::sequence_id.is_not_null()) // active layout have non-NULL sequence_id
+            .filter(layout_tab::sequence_id.eq(sequence_id)) 
             .select(LayoutModel::as_select())
             .first(&mut conn)
             .await?;
@@ -107,9 +111,28 @@ impl DBClient {
 
     pub async fn create_battle(
         &self,
-        battle: BattleModel,
+        id: String,
+        layout_id_1: u64,
+        layout_id_2: u64,
+        base_layout_data: String,
+        user_id_typer: Option<u64>,
+        content_data: ContentData,
+        is_personal: bool,
     ) -> Result<usize, AppError> {
         let mut conn = self.pool.get().await?;
+
+        let time_now = SystemTime::now().duration_since(UNIX_EPOCH).expect("time went backwards").as_millis() as i64;
+        let battle = BattleModel{
+            id,
+            layout_id_1,
+            layout_id_2,
+            base_layout_data,
+            user_id_typer,
+            content_data: serde_json::to_value(content_data)?,
+            is_personal,
+            time_created: time_now,
+            time_modified: time_now,
+        };
 
         let result = diesel::insert_into(battle_tab::table)
             .values(&battle)

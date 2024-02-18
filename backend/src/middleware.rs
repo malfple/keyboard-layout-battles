@@ -6,6 +6,7 @@ use crate::{auth, AppState};
 #[derive(Debug, Clone)]
 pub struct Identity {
     pub username: String,
+    pub user_id: u64,
 }
 
 /// Decodes Authorization header and puts it into identity extension
@@ -25,6 +26,7 @@ pub async fn relaxed_auth_middleware(
         };
         Some(Identity{
             username: decoded_token.claims.sub,
+            user_id: decoded_token.claims.sub_id,
         })
     } else {
         None
