@@ -244,6 +244,31 @@ impl DBClient {
         Ok(result)
     }
 
+    pub async fn get_battle_history_lite_list_ordered_by_time(&self, limit: i64) -> Result<Vec<BattleHistoryLiteModel>, AppError> {
+        let mut conn = self.pool.get().await?;
+
+        let result = battle_history_tab::table
+            .select(BattleHistoryLiteModel::as_select())
+            .order(battle_history_tab::id.desc())
+            .limit(limit)
+            .load(&mut conn)
+            .await?;
+
+        Ok(result)
+    }
+
+    pub async fn get_battle_history_by_id(&self, id: u64) -> Result<BattleHistoryModel, AppError> {
+        let mut conn = self.pool.get().await?;
+
+        let result = battle_history_tab::table
+            .filter(battle_history_tab::id.eq(id))
+            .select(BattleHistoryModel::as_select())
+            .first(&mut conn)
+            .await?;
+
+        Ok(result)
+    }
+
     // compound
 
     /// Does a lot of things in a transaction

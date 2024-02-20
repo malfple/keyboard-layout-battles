@@ -1,11 +1,11 @@
 use axum::{
-    extract::State, Extension, Json
+    extract::{Path, Query, State}, Extension, Json,
 };
 use rand::Rng;
 use skillratings::{glicko::{glicko, GlickoConfig}, Outcomes};
 use crate::{
     db::{json::{decode_content_data, ContentData, ContentWordData, RatingData, ResultData, ResultWordData},
-    model::LayoutModel, DBClient}, error::AppError, layout_validation::validate_layout_data, middleware::Identity, words::translate_word, AppState
+    model::{BattleHistoryLiteModel, BattleHistoryModel, LayoutModel}, DBClient}, error::AppError, layout_validation::validate_layout_data, middleware::Identity, words::translate_word, AppState
 };
 use serde::{Serialize, Deserialize};
 use nanoid::nanoid;
@@ -272,4 +272,47 @@ fn update_rating(rating_1: &mut RatingData, rating_2: &mut RatingData, score: i3
         &config);
 
     tracing::debug!("new rating data {:?} {:?}", rating_1, rating_2);
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GetBattleHistoryListRequest {
+    limit: i64,
+}
+
+#[derive(Debug, Serialize)]
+pub struct GetBattleHistoryListResponse {
+    battles: Vec<BattleHistoryLiteModel>,
+}
+
+/// Get Battle History List API
+pub async fn get_battle_history_list(
+    State(state): State<AppState>,
+    Query(req): Query<GetBattleHistoryListRequest>,
+) -> Result<Json<GetBattleHistoryListResponse>, AppError> {
+    if req.limit > 100 {
+        return Err(AppError::InvalidParameter(String::from("limit")));
+    }
+
+    let battles = state.db_client.get_battle_history_lite_list_ordered_by_time(req.limit).await?;
+
+    Ok(Json(GetBattleHistoryListResponse{
+        battles,
+    }))
+}
+
+#[derive(Debug, Serialize)]
+pub struct GetBattleHistoryResponse {
+    battle: BattleHistoryModel,
+}
+
+/// Get Battle History API
+pub async fn get_battle_history(
+    State(state): State<AppState>,
+    Path(id): Path<u64>,
+) -> Result<Json<GetBattleHistoryResponse>, AppError> {
+    let battle = state.db_client.get_battle_history_by_id(id).await?;
+
+    Ok(Json(GetBattleHistoryResponse{
+        battle,
+    }))
 }

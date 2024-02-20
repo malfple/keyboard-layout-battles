@@ -34,6 +34,20 @@ pub struct BattleHistoryModelForInsert {
     pub time_created: i64,
 }
 
+#[derive(Debug, Queryable, Selectable, serde::Serialize)]
+#[diesel(table_name = battle_history_tab)]
+pub struct BattleHistoryLiteModel {
+    pub id: u64,
+    pub layout_id_1: u64,
+    pub layout_id_2: u64,
+    pub layout_1_rating: i32,
+    pub layout_2_rating: i32,
+    pub rating_1_gain: i32,
+    pub rating_2_gain: i32,
+    pub is_personal: bool,
+    pub time_created: i64,
+}
+
 #[derive(Debug, Queryable, Selectable, Insertable, serde::Serialize)]
 #[diesel(table_name = battle_tab)]
 pub struct BattleModel {
