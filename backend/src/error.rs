@@ -53,10 +53,11 @@ impl IntoResponse for AppError {
             AppError::NotEnoughLayoutsForBattle => bad_request_error_response(self.to_string()),
             AppError::DeadPool(_) => internal_server_error_response(),
             AppError::DieselResult(err) => {
-                if err == diesel::result::Error::NotFound {
-                    not_found_error_response()
-                } else {
-                    internal_server_error_response()
+                match err {
+                    diesel::result::Error::NotFound => not_found_error_response(),
+                    diesel::result::Error::DatabaseError(diesel::result::DatabaseErrorKind::UniqueViolation, _) =>
+                        bad_request_error_response(String::from("unique violation")),
+                    _ => internal_server_error_response(),
                 }
             },
             AppError::BcryptError(_) => internal_server_error_response(),

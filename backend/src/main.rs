@@ -74,8 +74,8 @@ fn root_router(state: &AppState) -> Router<AppState> {
         .route("/register", post(service::register))
         .route("/layouts", get(service::layout::get_layout_list))
         .route("/layout/:id", get(service::layout::get_layout))
-        .route("/battle/histories", get(service::battle::get_battle_history_list))
-        .route("/battle/history/:id", get(service::battle::get_battle_history))
+        .route("/battle/histories", get(service::battle_history::get_battle_history_list))
+        .route("/battle/history/:id", get(service::battle_history::get_battle_history))
         .merge(battle_router(&state));
 
     app

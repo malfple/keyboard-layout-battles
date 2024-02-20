@@ -1,4 +1,5 @@
 const REQUIRED_CHARS: &str = "abcdefghijklmnopqrstuvwxyz'";
+pub const DEFAULT_LAYOUT_DATA: &str = "qwertyuiopasdfghjkl;'zxcvbnm,./"; // QWERTY
 
 pub fn validate_layout_data(layout_data: &str) -> bool {
     if layout_data.len() != 31 {
@@ -44,5 +45,6 @@ mod tests {
         assert_eq!(validate_layout_data("qwfpbjluy;arstgmneio'zxcdvkh,./"), true); // colemak dh
         assert_eq!(validate_layout_data("ypoujkdlcwinea,mhtsr'qz/.:bfgvx"), true); // mtgap
         assert_eq!(validate_layout_data("qwfpbjluy;arstgmneio'zxcdvkh,."), false); // invalid
+        assert_eq!(validate_layout_data(DEFAULT_LAYOUT_DATA), true);
     }
 }

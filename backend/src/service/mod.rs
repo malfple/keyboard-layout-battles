@@ -9,6 +9,11 @@ use serde::{Serialize, Deserialize};
 pub mod user;
 pub mod layout;
 pub mod battle;
+pub mod battle_history;
+
+const MAX_USERNAME_LEN: usize = 32;
+const MIN_PASSWORD_LEN: usize = 5;
+const MAX_PASSWORD_LEN: usize = 64;
 
 pub async fn ping(State(_state): State<AppState>) -> &'static str {
     "Hello, World!"
@@ -67,9 +72,17 @@ pub async fn register(
     State(state): State<AppState>,
     Form(req): Form<RegisterRequest>,
 ) -> Result<Json<RegisterResponse>, AppError> {
+    if req.username.len() < 1 || req.username.len() > MAX_USERNAME_LEN {
+        return Err(AppError::BadRequest(format!("username must have 1 to {} characters", MAX_USERNAME_LEN)));
+    }
+
+    if req.password.len() < MIN_PASSWORD_LEN || req.password.len() > MAX_PASSWORD_LEN {
+        return Err(AppError::BadRequest(format!("password must have {} to {} characters", MIN_PASSWORD_LEN, MAX_PASSWORD_LEN)));
+    }
+
     let hashed_password = auth::hash_password(&req.password)?;
 
-    _ = state.db_client.create_user(&req.username, &hashed_password).await?;
+    _ = state.db_client.create_user(req.username, hashed_password).await?;
 
     Ok(Json(RegisterResponse{
         message: "register success".into(),

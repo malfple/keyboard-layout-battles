@@ -7,7 +7,7 @@ use diesel_async::{
     }, scoped_futures::ScopedFutureExt, AsyncConnection, RunQueryDsl
 };
 use crate::{
-    error::AppError, settings::AppSettings
+    error::AppError, layout_validation::DEFAULT_LAYOUT_DATA, settings::AppSettings
 };
 use schema::*;
 use model::*;
@@ -34,13 +34,20 @@ impl DBClient {
 
     // Users
 
-    pub async fn create_user(&self, username: &str, hashed_password: &str) -> Result<usize, AppError> {
+    pub async fn create_user(&self, username: String, hashed_password: String) -> Result<usize, AppError> {
+        let time_now = SystemTime::now().duration_since(UNIX_EPOCH).expect("time went backwards").as_millis() as i64;
         let mut conn = self.pool.get().await?;
 
+        let user = UserModelForInsert{
+            username,
+            password: hashed_password,
+            layout_data: String::from(DEFAULT_LAYOUT_DATA),
+            time_created: time_now,
+            time_modified: time_now,
+        };
+
         let result = diesel::insert_into(user_tab::table)
-            .values((
-                user_tab::username.eq(username),
-                user_tab::password.eq(hashed_password)))
+            .values(&user)
             .execute(&mut conn)
             .await?;
 

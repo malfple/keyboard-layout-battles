@@ -97,3 +97,13 @@ pub struct UserModel {
     pub time_created: i64,
     pub time_modified: i64,
 }
+
+#[derive(Debug, Queryable, Insertable, serde::Serialize)]
+#[diesel(table_name = user_tab)]
+pub struct UserModelForInsert {
+    pub username: String,
+    pub password: String,
+    pub layout_data: String,
+    pub time_created: i64,
+    pub time_modified: i64,
+}
