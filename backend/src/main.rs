@@ -69,13 +69,13 @@ async fn main() {
 fn root_router(state: &AppState) -> Router<AppState> {
     let app = Router::new()
         .route("/", get(service::ping))
-        .route("/user/:username", get(service::user::get_user_by_username))
+        .route("/user/:username", get(service::get_user_by_username))
         .route("/login", post(service::login))
         .route("/register", post(service::register))
-        .route("/layouts", get(service::layout::get_layout_list))
-        .route("/layout/:id", get(service::layout::get_layout))
-        .route("/battle/histories", get(service::battle_history::get_battle_history_list))
-        .route("/battle/history/:id", get(service::battle_history::get_battle_history))
+        .route("/layouts", get(service::get_layout_list))
+        .route("/layout/:id", get(service::get_layout))
+        .route("/battle/histories", get(service::get_battle_history_list))
+        .route("/battle/history/:id", get(service::get_battle_history))
         .merge(battle_router(&state));
 
     app
@@ -83,8 +83,8 @@ fn root_router(state: &AppState) -> Router<AppState> {
 
 fn battle_router(state: &AppState) -> Router<AppState> {
     let app = Router::new()
-        .route("/battle", post(service::battle::create_battle))
-        .route("/battle", put(service::battle::finalize_battle))
+        .route("/battle", post(service::create_battle))
+        .route("/battle", put(service::finalize_battle))
         .layer(from_fn_with_state(state.clone(), middleware::relaxed_auth_middleware));
 
     app
