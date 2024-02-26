@@ -9,6 +9,9 @@
 			<strong slot="lead" class="text-xl uppercase">KLB</strong>
 			<span>Keyboard Layout Battles</span>
 		</AppRailAnchor>
+		<AppRailAnchor href="/layouts" title="Layouts">
+			<span class="text-base">Layouts</span>
+		</AppRailAnchor>
 		<AppRailAnchor
 			href="https://discord.gg/EXqV7W8MtY"
 			target="_blank"
