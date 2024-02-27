@@ -1,11 +1,11 @@
 # Get Layouts
 
-GET http://localhost:3000/layouts
+GET http://localhost:3000/api/layouts
 
 ###
 
 # Get Layout
 
-GET http://localhost:3000/layout/1
+GET http://localhost:3000/api/layout/1
 
 ###

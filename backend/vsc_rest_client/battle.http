@@ -15,7 +15,7 @@ Content-Type: application/x-www-form-urlencoded
 # Create Battle
 
 # @name create_battle
-POST http://localhost:3000/battle
+POST http://localhost:3000/api/battle
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -28,7 +28,7 @@ Authorization: Bearer {{accessToken}}
 
 # Finalize Battle
 
-PUT http://localhost:3000/battle
+PUT http://localhost:3000/api/battle
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
