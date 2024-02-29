@@ -1,3 +1,7 @@
-export type { LayoutLite, GetLayoutListResponse } from "./api/layout";
-export { getLayoutList } from "./api/layout";
+export type {
+    LayoutLite,
+    Layout,
+    GetLayoutListResponse,
+    GetLayoutResponse
+} from "./api/layout";
 

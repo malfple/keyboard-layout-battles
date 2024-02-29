@@ -1,22 +1,20 @@
 <script lang="ts">
-	import { Table, tableMapperValues, type TableSource } from "@skeletonlabs/skeleton";
-    import { onMount } from "svelte";
-    import { getLayoutList } from "$lib/api";
-    import type { LayoutLite } from "$lib/api";
+	import { onMount } from "svelte";
+	import type { GetLayoutListResponse, LayoutLite } from "$lib/api";
+	import { goto } from "$app/navigation";
 
-    let layouts: null | LayoutLite[];
-    let tableSource: TableSource;
+    let layouts: LayoutLite[];
 
     onMount(async () => {
-        getLayoutList()
-        .then(data => {
+        fetch("/api/layouts")
+        .then(resp => resp.json())
+        .then((data: GetLayoutListResponse) => {
             layouts = data.layouts;
-            tableSource = {
-                head: ["ID", "Name", "Rating", "Comfort Rating"],
-                body: tableMapperValues(layouts, ["id", "name", "rating", "rating_comfort"]),
-            }
         })
-    });
+        .catch((err: GetLayoutListResponse) => {
+            console.log(err);
+        });
+    })
 </script>
 
 <div class="container mx-auto p-8 flex justify-center">
@@ -26,9 +24,30 @@
             List of layouts
         </p>
         {#if layouts}
-            <Table source={tableSource} />
+            <div class="table-container">
+                <div class="table table-interactive">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Rating</th>
+                            <th>Comfort</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {#each layouts as layout}
+                            <tr on:click={() => {goto(`/layout/${layout.id}-${layout.name}`)}}>
+                                <td>{layout.id}</td>
+                                <td>{layout.name}</td>
+                                <td>{layout.rating}</td>
+                                <td>{layout.rating_comfort}</td>
+                            </tr>
+                        {/each}
+                    </tbody>
+                </div>
+            </div>
         {:else}
-            Loading...
+            <div class="placeholder" />
         {/if}
     </div>
 </div>
