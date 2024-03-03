@@ -20,4 +20,7 @@ export default {
 			},
 		}),
 	],
+	safelist: [
+		...["300", "400", "500", "600", "700", "800", "900"].map((g) => `bg-secondary-${g}`),
+	]
 } satisfies Config;

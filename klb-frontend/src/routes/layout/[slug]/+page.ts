@@ -9,7 +9,7 @@ export interface PageData{
 export async function load({ fetch, params }): Promise<PageData> {
     var id = parseInt(params.slug.split("-", 1)[0]);
 
-    return fetch("http://localhost:5173/api/layout/" + id)
+    return fetch("/api/layout/" + id)
     .then(resp => resp.json())
     .then((data: GetLayoutResponse) => {
         return {
