@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from "$app/navigation";
 	import type { BattleHistoryLite, GetBattleHistoryListResponse } from "$lib/api";
 	import { onMount } from "svelte";
 
@@ -23,7 +24,7 @@
             Start a battle!
         </p>
         <p>
-            <button type="button" class="btn variant-filled-primary h-48 w-96 rounded-xl">
+            <button type="button" class="btn variant-filled-primary h-48 w-96 rounded-xl" on:click={() => goto("/battle/input")}>
                 <div class="whitespace-normal">
                     <div class="text-2xl">Start Battle</div>
                     <div>Start a battle with english words and the global layout pool</div>

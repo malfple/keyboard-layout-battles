@@ -4,19 +4,24 @@
     export let layoutData: string;
     export let heatmap: boolean = false;
 
-    let rowsLeft: string[] = [
-        layoutData.substring(0, 5),
-        layoutData.substring(10, 15),
-        layoutData.substring(21, 26),
+    let paddedLayoutData: string;
+    $: paddedLayoutData = layoutData.padEnd(31, ' ');
+
+    let rowsLeft: string[];
+    $: rowsLeft = [
+        paddedLayoutData.substring(0, 5),
+        paddedLayoutData.substring(10, 15),
+        paddedLayoutData.substring(21, 26),
     ];
-    let rowsRight: string[] = [
-        layoutData.substring(5, 10),
-        layoutData.substring(15, 21),
-        layoutData.substring(26, 31),
-    ]
+    let rowsRight: string[]
+    $: rowsRight = [
+        paddedLayoutData.substring(5, 10),
+        paddedLayoutData.substring(15, 21),
+        paddedLayoutData.substring(26, 31),
+    ];
 </script>
 
-<div>
+<div class="inline-block">
     <div class="grid grid-cols-2">
         <div class="grid grid-rows-3 gap-1">
             {#each rowsLeft as row}

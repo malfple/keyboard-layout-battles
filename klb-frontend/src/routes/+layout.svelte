@@ -1,7 +1,11 @@
 <script lang="ts">
 	import '../app.postcss';
-	import { AppShell, AppRail, AppRailAnchor } from '@skeletonlabs/skeleton';
+	import { AppShell, AppRail, AppRailAnchor, initializeStores, Toast } from '@skeletonlabs/skeleton';
+
+	initializeStores();
 </script>
+
+<Toast />
 
 <AppShell>
 	<AppRail slot="sidebarLeft" width="w-40" aspectRatio="aspect-[3/1]">
