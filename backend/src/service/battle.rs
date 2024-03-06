@@ -5,7 +5,7 @@ use rand::Rng;
 use skillratings::{glicko::{glicko, GlickoConfig}, Outcomes};
 use crate::{
     db::{json::{decode_content_data, ContentData, ContentWordData, RatingData, ResultData, ResultWordData},
-    model::LayoutModel, DBClient}, error::AppError, layout_validation::validate_layout_data, middleware::Identity, words::translate_word, AppState
+    model::LayoutModel, DBClient}, error::AppError, layout_validation::validate_base_layout_data, middleware::Identity, words::translate_word, AppState
 };
 use serde::{Serialize, Deserialize};
 use nanoid::nanoid;
@@ -38,7 +38,7 @@ pub async fn create_battle(
         return Err(AppError::BadRequest(String::from("is_personal is not yet supported")));
     }
 
-    if !validate_layout_data(&req.base_layout_data) {
+    if !validate_base_layout_data(&req.base_layout_data) {
         return Err(AppError::InvalidParameter(String::from("base_layout_data")))
     }
 
