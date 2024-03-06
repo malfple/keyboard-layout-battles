@@ -1,6 +1,5 @@
 <script>
-	import KeyboardInput from "$lib/KeyboardInput.svelte";
-
+	import KeyboardInput from "$lib/keyboard/KeyboardInput.svelte";
 </script>
 <div class="container mx-auto p-8 flex justify-center">
     <div class="space-y-10 flex flex-col">

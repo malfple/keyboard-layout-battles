@@ -8,7 +8,7 @@
 <Toast />
 
 <AppShell>
-	<AppRail slot="sidebarLeft" width="w-40" aspectRatio="aspect-[3/1]">
+	<AppRail slot="sidebarLeft" width="w-40" aspectRatio="aspect-[3/1]" class="pb-6">
 		<AppRailAnchor href="/" title="Home">
 			<strong slot="lead" class="text-xl uppercase">KLB</strong>
 			<span>Keyboard Layout Battles</span>
