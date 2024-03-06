@@ -1,4 +1,5 @@
 <script lang="ts" context="module">
+    const requiredChars = "abcdefghijklmnopqrstuvwxyz'"
     const allowedChars = "abcdefghijklmnopqrstuvwxyz.,<>;:\'\"/?()[]{}";
     const posTop = [
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -56,6 +57,17 @@
 
     function toBattle() {
         console.log(layoutData);
+        // validate base layout
+        // character completeness
+        for(let c of requiredChars) {
+            if(!layoutData.includes(c)) {
+                toastStore.trigger({
+                    message: `key ${c} is missing`,
+                    background: "variant-filled-error",
+                })
+                return;
+            }
+        }
     }
 </script>
 <div class="inline-block relative">
