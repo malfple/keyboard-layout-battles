@@ -1,11 +1,11 @@
 use axum::{
-    extract::State, Extension, Json,
+    extract::{Path, State}, Extension, Json,
 };
 use rand::Rng;
 use skillratings::{glicko::{glicko, GlickoConfig}, Outcomes};
 use crate::{
     db::{json::{decode_content_data, ContentData, ContentWordData, RatingData, ResultData, ResultWordData},
-    model::LayoutModel, DBClient}, error::AppError, layout_validation::validate_base_layout_data, middleware::Identity, words::translate_word, AppState
+    model::{BattleModel, LayoutModel}, DBClient}, error::AppError, layout_validation::validate_base_layout_data, middleware::Identity, words::translate_word, AppState
 };
 use serde::{Serialize, Deserialize};
 use nanoid::nanoid;
@@ -49,30 +49,12 @@ pub async fn create_battle(
     tracing::debug!("random 2 layouts {:?}, {:?}", layout_1, layout_2);
 
     // generate content
-    let mut content = ContentData{
-        words: Vec::new(),
-    };
     let words = state.wordlist.random_words_with_limit(WORD_COUNT, MAX_WORD_LEN);
+    let content = construct_content(
+        words, &req.base_layout_data, &layout_1.layout_data, &layout_2.layout_data
+    )?;
 
-    for word in words {
-        content.words.push(ContentWordData{
-            original: word.to_owned(),
-            translated_1: translate_word(word, &req.base_layout_data, &layout_1.layout_data)?,
-            translated_2: translate_word(word, &req.base_layout_data, &layout_2.layout_data)?,
-            should_swap: rand::thread_rng().gen_bool(0.5),
-        })
-    }
-
-    let mut words_for_resp = Vec::new();
-    for content_word in content.words.iter() {
-        words_for_resp.push(
-            if !content_word.should_swap {
-                (content_word.translated_1.clone(), content_word.translated_2.clone())
-            } else {
-                (content_word.translated_2.clone(), content_word.translated_1.clone())
-            }
-        )
-    }
+    let words_for_resp = construct_words_for_resp(&content);
 
     // insert battle
     let user_id_typer = if let Some(identity) = identity {
@@ -127,6 +109,75 @@ async fn random_two_layouts(db_client: &DBClient) -> Result<(LayoutModel, Layout
     Ok((layout_1, layout_2))
 }
 
+fn construct_content(words: Vec<&str>, base_layout_data: &str, layout_1_data: &str, layout_2_data: &str) -> Result<ContentData, AppError> {
+    let mut content = ContentData{
+        words: Vec::new(),
+    };
+
+    for word in words {
+        content.words.push(ContentWordData{
+            original: word.to_owned(),
+            translated_1: translate_word(word, base_layout_data, layout_1_data)?,
+            translated_2: translate_word(word, base_layout_data, layout_2_data)?,
+            should_swap: rand::thread_rng().gen_bool(0.5),
+        })
+    }
+
+    Ok(content)
+}
+
+fn construct_words_for_resp(content: &ContentData) -> Vec<(String, String)> {
+    let mut words_for_resp = Vec::new();
+    for content_word in content.words.iter() {
+        words_for_resp.push(
+            if !content_word.should_swap {
+                (content_word.translated_1.clone(), content_word.translated_2.clone())
+            } else {
+                (content_word.translated_2.clone(), content_word.translated_1.clone())
+            }
+        )
+    }
+
+    words_for_resp
+}
+
+#[derive(Debug, Serialize)]
+pub struct GetBattleResponse {
+    words: Vec<(String, String)>,
+}
+
+/// Get Battle API
+pub async fn get_battle(
+    State(state): State<AppState>,
+    Extension(identity): Extension<Option<Identity>>,
+    Path(id): Path<String>,
+) -> Result<Json<GetBattleResponse>, AppError> {
+    let battle = state.db_client.get_battle(&id).await?;
+
+    _ = authenticate_typer(&battle, &identity)?;
+
+    let content = decode_content_data(battle.content_data)?;
+
+    let words_for_resp = construct_words_for_resp(&content);
+
+    Ok(Json(GetBattleResponse{
+       words: words_for_resp,
+    }))
+}
+
+fn authenticate_typer(battle: &BattleModel, identity: &Option<Identity>) -> Result<(), AppError> {
+    if let Some(user_id_typer) = battle.user_id_typer { // if typer exist, then only typer can update
+        match identity {
+            Some(identity) => if user_id_typer != identity.user_id {
+                return Err(AppError::Unauthorized); // incorrect auth
+            },
+            None => return Err(AppError::Unauthorized), // no auth
+        }
+    }
+
+    Ok(())
+}
+
 #[derive(Debug, Deserialize)]
 pub struct FinalizeBattleRequest {
     id: String,
@@ -165,14 +216,7 @@ pub async fn finalize_battle(
 
     let battle = state.db_client.get_battle(&req.id).await?;
 
-    if let Some(user_id_typer) = battle.user_id_typer { // if typer exist, then only typer can update
-        match identity {
-            Some(identity) => if user_id_typer != identity.user_id {
-                return Err(AppError::Unauthorized); // incorrect auth
-            },
-            None => return Err(AppError::Unauthorized), // no auth
-        }
-    }
+    _ = authenticate_typer(&battle, &identity)?;
 
     let content = decode_content_data(battle.content_data)?;
 

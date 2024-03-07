@@ -1,5 +1,5 @@
 const REQUIRED_CHARS: &str = "abcdefghijklmnopqrstuvwxyz'";
-const ALLOWED_CHARS: &str = "abcdefghijklmnopqrstuvwxyz.,<>;:\'\"/?()[]{}";
+const ALLOWED_CHARS: &str = "abcdefghijklmnopqrstuvwxyz.,<>;:\'\"/?()[]{}-";
 pub const DEFAULT_LAYOUT_DATA: &str = "qwertyuiopasdfghjkl;'zxcvbnm,./"; // QWERTY
 
 pub fn validate_base_layout_data(layout_data: &str) -> bool {

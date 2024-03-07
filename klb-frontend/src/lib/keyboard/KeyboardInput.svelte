@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
     const requiredChars = "abcdefghijklmnopqrstuvwxyz'"
-    const allowedChars = "abcdefghijklmnopqrstuvwxyz.,<>;:\'\"/?()[]{}";
+    const allowedChars = "abcdefghijklmnopqrstuvwxyz.,<>;:\'\"/?()[]{}-";
     const posTop = [
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
         52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52,

@@ -84,6 +84,7 @@ fn root_router(state: &AppState) -> Router<AppState> {
 fn battle_router(state: &AppState) -> Router<AppState> {
     let app = Router::new()
         .route("/api/battle", post(service::create_battle))
+        .route("/api/battle/:id", get(service::get_battle))
         .route("/api/battle", put(service::finalize_battle))
         .layer(from_fn_with_state(state.clone(), middleware::relaxed_auth_middleware));
 
