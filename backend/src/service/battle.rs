@@ -166,7 +166,7 @@ pub async fn get_battle(
 }
 
 fn authenticate_typer(battle: &BattleModel, identity: &Option<Identity>) -> Result<(), AppError> {
-    if let Some(user_id_typer) = battle.user_id_typer { // if typer exist, then only typer can update
+    if let Some(user_id_typer) = battle.user_id_typer { // if typer exist, then only typer can access
         match identity {
             Some(identity) => if user_id_typer != identity.user_id {
                 return Err(AppError::Unauthorized); // incorrect auth

@@ -20,9 +20,12 @@
 
 	import KeyMarker from "./KeyMarker.svelte";
     import Keyboard from "./Keyboard.svelte";
+	import { createEventDispatcher } from "svelte";
 
     const toastStore = getToastStore();
+    const dispatch = createEventDispatcher<{submit:{layoutData: string}}>();
 
+    export let disableSubmit = false;
     let layoutData = "";
     let markerTop = 0;
     let markerLeft = 0;
@@ -55,8 +58,7 @@
         markerLeft = 0;
     }
 
-    function toBattle() {
-        console.log(layoutData);
+    function submit() {
         // validate base layout
         // character completeness
         for(let c of requiredChars) {
@@ -68,6 +70,10 @@
                 return;
             }
         }
+
+        dispatch("submit", {
+            layoutData: layoutData,
+        })
     }
 </script>
 <div class="inline-block relative">
@@ -75,7 +81,7 @@
     <KeyMarker top={markerTop} left={markerLeft} ping={!ready}/>
     <div class="p-4">
         <button class="btn variant-filled-error" on:click={reset}>Reset</button>
-        <button class="btn variant-filled-primary" disabled={!ready} on:click={toBattle}>Use This!</button>
+        <button class="btn variant-filled-primary" disabled={!ready || disableSubmit} on:click={submit}>Use This!</button>
     </div>
 </div>
 

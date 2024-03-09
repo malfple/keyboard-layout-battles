@@ -1,18 +1,24 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import type { BattleHistoryLite, GetBattleHistoryListResponse } from "$lib/api";
+	import type { BattleHistoryLite, GetBattleHistoryListResponse } from "$lib/schema";
+	import { getToastStore } from "@skeletonlabs/skeleton";
 	import { onMount } from "svelte";
 
+    const toastStore = getToastStore();
+    
     let battles: BattleHistoryLite[];
 
     onMount(async () => {
         fetch("/api/battle/histories?limit=10")
-        .then(resp => resp.json())
-        .then((data: GetBattleHistoryListResponse) => {
+        .then(resp => resp.json().then((data: GetBattleHistoryListResponse) => {
+            if(!resp.ok) throw {status: resp.status, data: data};
             battles = data.battles;
-        })
-        .catch((err: GetBattleHistoryListResponse) => {
-            console.log(err);
+        }))
+        .catch((err: {status: number, data: GetBattleHistoryListResponse}) => {
+            toastStore.trigger({
+                message: `error: ${err.data.error}, msg: ${err.data.error_message}`,
+                background: "variant-filled-error"
+            });
         });
     })
 </script>
@@ -24,7 +30,7 @@
             Start a battle!
         </p>
         <p>
-            <button type="button" class="btn variant-filled-primary h-48 w-96 rounded-xl" on:click={() => goto("/battle/input")}>
+            <button type="button" class="btn variant-filled-primary h-48 w-96 rounded-xl" on:click={() => goto("/battle/start")}>
                 <div class="whitespace-normal">
                     <div class="text-2xl">Start Battle</div>
                     <div>Start a battle with english words and the global layout pool</div>
