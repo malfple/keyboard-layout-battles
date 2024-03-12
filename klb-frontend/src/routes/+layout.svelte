@@ -1,11 +1,13 @@
 <script lang="ts">
+	import KeyboardInputGuide from '$lib/guide/KeyboardInputGuide.svelte';
 	import '../app.postcss';
-	import { AppShell, AppRail, AppRailAnchor, initializeStores, Toast } from '@skeletonlabs/skeleton';
+	import { AppShell, AppRail, AppRailAnchor, initializeStores, Toast, Modal } from '@skeletonlabs/skeleton';
 
 	initializeStores();
 </script>
 
 <Toast />
+<Modal />
 
 <AppShell>
 	<AppRail slot="sidebarLeft" width="w-40" aspectRatio="aspect-[3/1]" class="pb-6">
@@ -18,6 +20,9 @@
 		</AppRailAnchor>
 		<AppRailAnchor href="/layout" title="Layouts">
 			<span class="text-base">Layouts</span>
+		</AppRailAnchor>
+		<AppRailAnchor href="/guide" title="Guide">
+			<span class="text-base">Guides</span>
 		</AppRailAnchor>
 		<svelte:fragment slot="trail">
 			<AppRailAnchor

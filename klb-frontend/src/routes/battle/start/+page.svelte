@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
+	import KeyboardInputGuide from "$lib/guide/KeyboardInputGuide.svelte";
 	import KeyboardInput from "$lib/keyboard/KeyboardInput.svelte";
 	import type { CreateBattleRequest, CreateBattleResponse } from "$lib/schema";
-	import { getToastStore } from "@skeletonlabs/skeleton";
+	import { getModalStore, getToastStore } from "@skeletonlabs/skeleton";
 
     const toastStore = getToastStore();
+    const modalStore = getModalStore();
     let disableSubmit = false;
 
     async function toBattle(e: CustomEvent<{layoutData: string}>) {
@@ -41,6 +43,14 @@
         <h1 class="h1">Input base layer</h1>
         <p>
             Provide the keyboard layout that you are using right now. Use this same layout for the battle.
+        </p>
+        <p>
+            <button class="btn variant-glass-primary animate-pulse" on:click={() => {
+                modalStore.trigger({
+                    type: "component",
+                    component: { ref: KeyboardInputGuide },
+                })
+            }}>How to input your keyboard layout</button>
         </p>
         <p>
             <KeyboardInput on:submit={toBattle} {disableSubmit} />
