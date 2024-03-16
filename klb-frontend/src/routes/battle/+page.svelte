@@ -3,6 +3,9 @@
 	import type { BattleHistoryLite, GetBattleHistoryListResponse } from "$lib/schema";
 	import { getToastStore } from "@skeletonlabs/skeleton";
 	import { onMount } from "svelte";
+	import type { PageData } from "./$types";
+
+    export let data: PageData;
 
     const toastStore = getToastStore();
     
@@ -40,20 +43,24 @@
         <h2 class="h2">Recent Battles</h2>
         {#if battles}
             <div class="table-container">
-                <div class="table table-interactive">
+                <div class="table table-compact table-interactive">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Layout 1</th>
+                            <th>Rating</th>
                             <th>Layout 2</th>
+                            <th>Rating</th>
                         </tr>
                     </thead>
                     <tbody>
                         {#each battles as battle}
-                            <tr>
+                            <tr on:click={() => {goto(`/battle/history/${battle.id}`)}}>
                                 <td>{battle.id}</td>
-                                <td>{battle.layout_id_1}</td>
-                                <td>{battle.layout_id_2}</td>
+                                <td>{data.layouts.get(battle.layout_id_1)?.name}</td>
+                                <td>{battle.layout_1_rating} ({battle.rating_1_gain>0?"+":""}{battle.rating_1_gain})</td>
+                                <td>{data.layouts.get(battle.layout_id_2)?.name}</td>
+                                <td>{battle.layout_2_rating} ({battle.rating_2_gain>0?"+":""}{battle.rating_2_gain})</td>
                             </tr>
                         {/each}
                     </tbody>

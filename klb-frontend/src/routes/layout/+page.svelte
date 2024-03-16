@@ -26,17 +26,20 @@
     <div class="space-y-10 flex flex-col">
         <h1 class="h1">Layouts</h1>
         <p>
-            List of layouts
+            List of layouts.
+            "Rating" typically refers to speed rating which is measured by the typing time
+            and "Comfort" refers to the comfort rating which based on the typer's preference.
         </p>
         {#if layouts}
             <div class="table-container">
-                <div class="table table-interactive">
+                <div class="table table-compact table-interactive">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Name</th>
                             <th>Rating</th>
                             <th>Comfort</th>
+                            <th>Layout Data</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -46,6 +49,7 @@
                                 <td>{layout.name}</td>
                                 <td>{layout.rating}</td>
                                 <td>{layout.rating_comfort}</td>
+                                <td>{layout.layout_data}</td>
                             </tr>
                         {/each}
                     </tbody>

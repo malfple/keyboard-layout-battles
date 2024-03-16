@@ -16,6 +16,42 @@ export interface GetBattleHistoryListResponse {
     error_message: string
 }
 
+export interface ResultWordData {
+    original: string
+    translated_1: string
+    translated_2: string
+    time_1: number
+    time_2: number
+    comfort_choice: number
+}
+
+export interface ResultData {
+    words: ResultWordData[]
+    score: number
+    comfort_score: number
+}
+
+export interface BattleHistory {
+    id: number
+    layout_id_1: number
+    layout_id_2: number
+    base_layout_data: string
+    user_id_typer: number
+    layout_1_rating: number
+    layout_2_rating: number
+    rating_1_gain: number
+    rating_2_gain: number
+    result_data: ResultData
+    is_personal: boolean
+    time_created: Number
+}
+
+export interface GetBattleHistoryResponse {
+    battle: BattleHistory
+    error: string
+    error_message: string
+}
+
 export interface CreateBattleRequest {
     base_layout_data: string
     is_personal: boolean

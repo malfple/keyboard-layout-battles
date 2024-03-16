@@ -1,9 +1,13 @@
 <script lang="ts">
-	import KeyboardInputGuide from '$lib/guide/KeyboardInputGuide.svelte';
 	import '../app.postcss';
 	import { AppShell, AppRail, AppRailAnchor, initializeStores, Toast, Modal } from '@skeletonlabs/skeleton';
+	import type { PageData } from './$types';
+
+	export let data: PageData;
 
 	initializeStores();
+
+	console.log("Retrieve top level data layouts", data, data.layouts.get(2));
 </script>
 
 <Toast />

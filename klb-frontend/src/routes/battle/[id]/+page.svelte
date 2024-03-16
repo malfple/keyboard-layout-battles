@@ -1,6 +1,6 @@
 <script lang="ts">
 	import BattleInput from "$lib/battle/BattleInput.svelte";
-    import type { PageData } from "./+page";
+    import type { PageData } from "./$types";
 
     export let data: PageData
 </script>

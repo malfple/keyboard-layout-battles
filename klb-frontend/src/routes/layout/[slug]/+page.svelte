@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Keyboard from "$lib/keyboard/Keyboard.svelte";
-    import type { PageData } from "./+page";
+    import type { PageData } from "./$types";
 
 	export let data: PageData;
 </script>
