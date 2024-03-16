@@ -1,13 +1,13 @@
 <script lang="ts" context="module">
-    const requiredChars = "abcdefghijklmnopqrstuvwxyz'"
-    const allowedChars = "abcdefghijklmnopqrstuvwxyz.,<>;:\'\"/?()[]{}-";
-    const posTop = [
+    const REQUIRED_CHARS = "abcdefghijklmnopqrstuvwxyz'"
+    export const ALLOWED_CHARS = "abcdefghijklmnopqrstuvwxyz.,<>;:\'\"/?()[]{}-";
+    const POS_TOP = [
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
         52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52,
         104,104,104,104,104,104,104,104,104,104,
         104,
     ];
-    const posLeft = [
+    const POS_LEFT = [
         0,  52, 104,156,208,308,360,412,464,516,
         0,  52, 104,156,208,308,360,412,464,516,568,
         0,  52, 104,156,208,308,360,412,464,516,
@@ -37,7 +37,7 @@
             return;
         }
 
-        if(allowedChars.includes(e.key)) {
+        if(ALLOWED_CHARS.includes(e.key)) {
             // console.log(e.key)
             if(layoutData.includes(e.key)) { // already exist
                 toastStore.trigger({
@@ -46,8 +46,8 @@
                 })
             } else {
                 layoutData = layoutData + e.key;
-                markerTop = posTop[layoutData.length];
-                markerLeft = posLeft[layoutData.length];
+                markerTop = POS_TOP[layoutData.length];
+                markerLeft = POS_LEFT[layoutData.length];
             }
         }
     }
@@ -61,7 +61,7 @@
     function submit() {
         // validate base layout
         // character completeness
-        for(let c of requiredChars) {
+        for(let c of REQUIRED_CHARS) {
             if(!layoutData.includes(c)) {
                 toastStore.trigger({
                     message: `key ${c} is missing`,

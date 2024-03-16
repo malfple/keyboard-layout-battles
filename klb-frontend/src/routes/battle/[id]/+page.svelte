@@ -1,16 +1,18 @@
 <script lang="ts">
-	import type { PageData } from "./+page";
+	import BattleInput from "$lib/battle/BattleInput.svelte";
+    import type { PageData } from "./+page";
 
     export let data: PageData
-
-    console.log(data.words);
 </script>
 
-<div class="container mx-auto p-8 flex justify-center">
-    <div class="space-y-10 flex flex-col">
-        <h1 class="h1">Battle {data.id}</h1>
-        <p>
-            {data.words}
-        </p>
+<div class="container mx-auto p-8 flex flex-col h-full w-full">
+    <div class="container mx-auto flex">
+        <div class="space-y-10 flex flex-col">
+            <h1 class="h1">Battle!</h1>
+            <div>
+                Type type type! End every word with a spacebar! Mistakes will reset the word and the timer.
+            </div>
+        </div>
     </div>
+    <BattleInput wordPairs={data.words} />
 </div>
