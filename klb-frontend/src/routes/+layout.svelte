@@ -30,27 +30,14 @@
 		</AppRailAnchor>
 		<svelte:fragment slot="trail">
 			<AppRailAnchor
-				href="https://discord.gg/EXqV7W8MtY"
+				aspectRatio="aspect-[5/1]"
+				href="https://discord.gg/2qq8qmDtFf"
 				target="_blank"
 				rel="noreferrer"
+				title="Discord"
 			>
 				Discord
 			</AppRailAnchor>
-			<AppRailAnchor
-				href="https://twitter.com/SkeletonUI"
-				target="_blank"
-				rel="noreferrer"
-			>
-				Twitter
-			</AppRailAnchor>
-			<AppRailAnchor
-				href="https://github.com/skeletonlabs/skeleton"
-				target="_blank"
-				rel="noreferrer"
-			>
-				GitHub
-			</AppRailAnchor>
-			<AppRailAnchor aspectRatio="aspect-[5/1]" href="/login" title="Login">Sample Tail</AppRailAnchor>
 		</svelte:fragment>
 	</AppRail>
 	<!-- Page Route Content -->
