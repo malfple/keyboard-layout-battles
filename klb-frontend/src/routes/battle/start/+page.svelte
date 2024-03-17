@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import KeyboardInputGuide from "$lib/guide/KeyboardInputGuide.svelte";
-	import KeyboardInput from "$lib/keyboard/KeyboardInput.svelte";
+	import KeyboardInput, { type SubmitData } from "$lib/keyboard/KeyboardInput.svelte";
 	import type { CreateBattleRequest, CreateBattleResponse } from "$lib/schema";
 	import { getModalStore, getToastStore } from "@skeletonlabs/skeleton";
 
@@ -9,7 +9,7 @@
     const modalStore = getModalStore();
     let disableSubmit = false;
 
-    async function toBattle(e: CustomEvent<{layoutData: string}>) {
+    async function toBattle(e: CustomEvent<SubmitData>) {
         disableSubmit = true;
 
         let req: CreateBattleRequest = {

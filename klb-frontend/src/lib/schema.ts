@@ -59,13 +59,27 @@ export interface CreateBattleRequest {
 
 export interface CreateBattleResponse {
     id: string
-    words: string[][]
+    words: string[][] // [wordPairs][2]
     error: string
     error_message: string
 }
 
 export interface GetBattleResponse {
-    words: string[][]
+    words: string[][] // [wordPairs][2]
+    error: string
+    error_message: string
+}
+
+export interface FinalizeBattleRequest {
+    id: string
+    times: number[][] // [wordPairs][2]
+    comfort_choice: number[]
+}
+
+export interface FinalizeBattleResponse {
+    layout_id_1: number
+    layout_id_2: number
+    result_data: ResultData
     error: string
     error_message: string
 }

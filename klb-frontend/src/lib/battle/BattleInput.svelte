@@ -1,16 +1,23 @@
 <script lang="ts" context="module">
-    const REPEATS = 1;
+    const REPEATS = 3;
     const ROUNDS = 1;
     // total words in a pair = REPEAT * ROUNDS * 2
+
+    export interface SubmitData {
+        times: number[][]
+        comfort: number[]
+    }
 </script>
 
 <script lang="ts">
 	import { ALLOWED_CHARS } from "$lib/keyboard/KeyboardInput.svelte";
 	import { ProgressRadial } from "@skeletonlabs/skeleton";
 
-	import { onMount } from "svelte";
+	import { createEventDispatcher, onMount } from "svelte";
 
     export let wordPairs: string[][];
+    
+    const dispatch = createEventDispatcher<{submit:SubmitData}>();
 
     // pre-process
     let wordsOk = true;
@@ -93,7 +100,7 @@
         if(isDone()) {
             comfortBox.classList.add("invisible");
             comfortBox.style.opacity = "0";
-            topText = "";
+            topText = "All done!";
             return;
         }
 
@@ -106,7 +113,7 @@
             comfortBox.classList.add("invisible");
             comfortBox.style.opacity = "0";
             // top text
-            topText = `Type ${currWord}`;
+            topText = `Type ${currWord} | end it with a space`;
         } else {
             // render current word
             wordBox.classList.add("invisible");
@@ -115,7 +122,7 @@
             comfortBox.classList.remove("invisible");
             comfortBox.style.opacity = "100";
 
-            topText = "Which layout is more comfortable?"
+            topText = "Which layout is more comfortable? (press 1 or 2 to select and space/enter to decide)"
         }
     }
 
@@ -160,7 +167,7 @@
                     / (wordPairs.length * (ROUNDS + 1) * 2 * REPEATS) * 100;
         
         if(isDone()) {
-            submitResults();
+            submit();
         }
     }
 
@@ -213,8 +220,23 @@
         }
     }
 
-    function submitResults() {
-        console.log("submit", times, comfortPick);
+    function submit() {
+        // select best times
+        let bestTimes: number[][] = [];
+        for(let i=0; i<wordPairs.length; i++) {
+            bestTimes.push([]);
+            for(let j=0; j<2; j++) {
+                let timeArray = times[i][j];
+                timeArray.sort((a, b) => (a-b));
+                bestTimes[i].push(timeArray[0]+timeArray[1]+timeArray[2]);
+            }
+        }
+        console.log("submit", bestTimes, comfortPick);
+
+        dispatch("submit", {
+            times: bestTimes,
+            comfort: comfortPick,
+        });
     }
 </script>
 

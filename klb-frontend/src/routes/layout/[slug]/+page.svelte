@@ -14,6 +14,11 @@
         <p>
             <Keyboard layoutData={data.layout.layout_data} heatmap={true} />
         </p>
+        {#if data.layout.description}
+            <p>
+                {data.layout.description}
+            </p>
+        {/if}
         <p>
             Rating: {data.layout.rating}
         </p>

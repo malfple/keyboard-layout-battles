@@ -13,6 +13,10 @@
         0,  52, 104,156,208,308,360,412,464,516,
         516,
     ];
+
+    export interface SubmitData {
+        layoutData: string
+    }
 </script>
 
 <script lang="ts">
@@ -23,7 +27,7 @@
 	import { createEventDispatcher } from "svelte";
 
     const toastStore = getToastStore();
-    const dispatch = createEventDispatcher<{submit:{layoutData: string}}>();
+    const dispatch = createEventDispatcher<{submit:SubmitData}>();
 
     export let disableSubmit = false;
     let layoutData = "";
