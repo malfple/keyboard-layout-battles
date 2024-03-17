@@ -30,7 +30,16 @@
 		</AppRailAnchor>
 		<svelte:fragment slot="trail">
 			<AppRailAnchor
-				aspectRatio="aspect-[5/1]"
+				aspectRatio="aspect-[4/1]"
+				href="https://github.com/malfple/keyboard-layout-battles"
+				target="_blank"
+				rel="noreferrer"
+				title="Github"
+			>
+				Github
+			</AppRailAnchor>
+			<AppRailAnchor
+				aspectRatio="aspect-[4/1]"
 				href="https://discord.gg/2qq8qmDtFf"
 				target="_blank"
 				rel="noreferrer"

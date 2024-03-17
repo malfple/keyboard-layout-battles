@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
     const REPEATS = 3;
-    const ROUNDS = 1;
+    const ROUNDS = 3;
     // total words in a pair = REPEAT * ROUNDS * 2
 
     export interface SubmitData {

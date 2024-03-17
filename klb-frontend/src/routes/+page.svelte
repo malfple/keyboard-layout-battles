@@ -25,15 +25,18 @@
 					Keyboard Layout Battles provides an environment where alternative keyboard layouts can be compared to each other
 					in a subjective way by having a human typer be a judge of a match between 2 keyboard layouts.
 				</p>
+				<h2 class="h2">Issues or Improvement</h2>
+				<p>
+					If you find any bugs or you have any improvement in mind,
+					feel free to submit your thoughts on the
+					<a class="text-primary-500 underline" href="https://github.com/malfple/keyboard-layout-battles/issues" target="_blank">
+						Github issues page.
+					</a>
+				</p>
 				<h2 class="h2">Discord</h2>
 				<p>
 					There is a
-					<a
-						class="text-primary-500 underline"
-						href="https://discord.gg/2qq8qmDtFf"
-						target="_blank"
-						rel="noreferrer"
-					>
+					<a class="text-primary-500 underline" href="https://discord.gg/2qq8qmDtFf" target="_blank" rel="noreferrer">
 						discord server
 					</a> for alternative keyboard layouts.
 				</p>
