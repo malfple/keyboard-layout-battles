@@ -25,4 +25,15 @@ impl AppSettings {
 
         config.try_deserialize()
     }
+
+    pub fn new_shuttle(database_url: String) -> Self {
+        AppSettings{
+            general: General{
+                token_secret: String::from("test-secret"),
+            },
+            database: Database{
+                url: database_url,
+            },
+        }
+    }
 }

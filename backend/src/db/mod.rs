@@ -19,12 +19,12 @@ pub mod model;
 pub mod json;
 
 pub struct DBClient {
-    pub pool: Pool<diesel_async::AsyncMysqlConnection>,
+    pub pool: Pool<diesel_async::AsyncPgConnection>,
 }
 
 impl DBClient {
     pub fn new(settings: &AppSettings) -> DBClient {
-        let config = AsyncDieselConnectionManager::<diesel_async::AsyncMysqlConnection>::new(&settings.database.url);
+        let config = AsyncDieselConnectionManager::<diesel_async::AsyncPgConnection>::new(&settings.database.url);
         let pool = Pool::builder(config).build().unwrap();
 
         DBClient {
@@ -82,7 +82,7 @@ impl DBClient {
 
     async fn get_layouts_by_ids_for_update_with_conn(
         &self,
-        conn: &mut Object<diesel_async::AsyncMysqlConnection>,
+        conn: &mut Object<diesel_async::AsyncPgConnection>,
         ids: Vec<u64>,
     ) -> Result<Vec<LayoutModel>, Error> {
         let result = layout_tab::table
@@ -131,7 +131,7 @@ impl DBClient {
 
     async fn update_layout_rating_with_conn(
         &self,
-        conn: &mut Object<diesel_async::AsyncMysqlConnection>,
+        conn: &mut Object<diesel_async::AsyncPgConnection>,
         id: u64,
         rating: i32,
         rating_comfort: i32,
@@ -202,7 +202,7 @@ impl DBClient {
 
     async fn delete_battle_with_conn(
         &self,
-        conn: &mut Object<diesel_async::AsyncMysqlConnection>,
+        conn: &mut Object<diesel_async::AsyncPgConnection>,
         id: &str
     ) -> Result<usize, Error> {
         let result = diesel::delete(battle_tab::table)
@@ -216,7 +216,7 @@ impl DBClient {
     // battle history
     async fn create_battle_history_with_conn(
         &self,
-        conn: &mut Object<diesel_async::AsyncMysqlConnection>,
+        conn: &mut Object<diesel_async::AsyncPgConnection>,
         layout_id_1: u64,
         layout_id_2: u64,
         base_layout_data: String,

@@ -3,7 +3,6 @@ use axum::{
     extract::MatchedPath, http::{Request, Response}, middleware::from_fn_with_state, routing::{get, post, put}, Router
 };
 use tracing::Span;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use tower_http::trace::TraceLayer;
 
 pub mod auth;
@@ -22,16 +21,20 @@ pub struct AppState {
     pub wordlist: Arc<words::Wordlist>
 }
 
-#[tokio::main]
-async fn main() {
-    let settings = settings::AppSettings::new().expect("settings cannot be initialized");
+#[shuttle_runtime::main]
+pub async fn axum(
+    #[shuttle_runtime::Secrets] secrets: shuttle_secrets::SecretStore,
+    #[shuttle_shared_db::Postgres] conn_str: String,
+) -> shuttle_axum::ShuttleAxum {
+    // let settings = settings::AppSettings::new().expect("settings cannot be initialized");
+    let settings = settings::AppSettings::new_shuttle(conn_str);
 
-    tracing_subscriber::registry()
-        .with(tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-            "backend=debug,tower_http=debug".into()
-        }))
-        .with(tracing_subscriber::fmt::layer())
-        .init();
+    // tracing_subscriber::registry()
+    //     .with(tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+    //         "backend=debug,tower_http=debug".into()
+    //     }))
+    //     .with(tracing_subscriber::fmt::layer())
+    //     .init();
 
     let state = AppState{
         db_client: Arc::new(db::DBClient::new(&settings)),
@@ -59,11 +62,13 @@ async fn main() {
             }))
         .with_state(state);
 
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
-        .await
-        .unwrap();
-    tracing::info!("listening on {}", listener.local_addr().unwrap());
-    axum::serve(listener, app).await.unwrap();
+    // let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
+    //     .await
+    //     .unwrap();
+    // tracing::info!("listening on {}", listener.local_addr().unwrap());
+    // axum::serve(listener, app).await.unwrap();
+
+    return Ok(app.into())
 }
 
 fn root_router(state: &AppState) -> Router<AppState> {
