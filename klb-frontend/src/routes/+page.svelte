@@ -24,21 +24,39 @@
 				<p>
 					Keyboard Layout Battles provides an environment where alternative keyboard layouts can be compared to each other
 					in a subjective way by having a human typer be a judge of a match between 2 keyboard layouts.
+					Scores can be accumulated and ratings can be calculated for each layout similar to chess.
 				</p>
-				<h2 class="h2">Issues or Improvement</h2>
+				<h2 class="h2">Learn about alt keyboard layouts</h2>
 				<p>
-					If you find any bugs or you have any improvement in mind,
+					If you are unfamiliar with alternative keyboard layouts,
+					here are some links that can get you started.
+				</p>
+				<div>
+					<ul class="list-nav">
+						<li>
+							<a href="https://getreuer.info/posts/keyboards/alt-layouts/index.html" target="_blank" rel="noreferrer">
+								Pascal Getreuer's guide to alt keyboard layouts
+							</a>
+						</li>
+						<li>
+							<a href="https://www.reddit.com/r/KeyboardLayouts/comments/fevb94/a_brief_summary_of_alternative_keyboard_layout/" target="_blank" rel="noreferrer">
+								r/KeyboardLayouts
+							</a>
+						</li>
+						<li>
+							<a href="https://discord.gg/2qq8qmDtFf" target="_blank" rel="noreferrer">
+								AKL discord server
+							</a>
+						</li>
+					</ul>
+				</div>
+				<h2 class="h2">Issues or suggestions</h2>
+				<p>
+					If you find any bugs or you have any suggestions in mind,
 					feel free to submit your thoughts on the
 					<a class="text-primary-500 underline" href="https://github.com/malfple/keyboard-layout-battles/issues" target="_blank">
 						Github issues page.
 					</a>
-				</p>
-				<h2 class="h2">Discord</h2>
-				<p>
-					There is a
-					<a class="text-primary-500 underline" href="https://discord.gg/2qq8qmDtFf" target="_blank" rel="noreferrer">
-						discord server
-					</a> for alternative keyboard layouts.
 				</p>
 			</div>
 			<div class="space-y-4">
