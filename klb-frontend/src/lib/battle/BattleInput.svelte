@@ -127,7 +127,10 @@
     }
 
     function moveCaret() {
-        if(wordBox.children.length == 0) return;
+        if(wordBox.children.length == 0) {
+            caret.style.transform = "translate(0px, -6px)";
+            return;
+        }
         let letterSpan = wordBox.children[0] as HTMLSpanElement;
         caret.style.transform = `translate(${letterSpan.offsetLeft + letterIndex*letterSpan.offsetWidth}px, ${letterSpan.offsetTop}px)`;
     }
@@ -272,7 +275,7 @@
             <div class="w-full text-center">
                 <div
                     bind:this={wordCaretBox}
-                    class="relative inline-block"
+                    class="relative inline-block animate-shake"
                     on:animationend={() => wordCaretBox.classList.remove("animate-shake")}
                 >
                     <div bind:this={caret} class="absolute top-0 left-0 bg-warning-500 w-1 h-20 animate-pulse transition-all duration-200" hidden />
