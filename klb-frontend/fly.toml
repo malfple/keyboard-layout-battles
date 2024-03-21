@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for klb-frontend on 2024-03-21T18:00:27+08:00
+# fly.toml app configuration file generated for keyboard-layout-battles on 2024-03-21T18:15:59+08:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'klb-frontend'
+app = 'keyboard-layout-battles'
 primary_region = 'sin'
 
 [build]
@@ -17,6 +17,4 @@ primary_region = 'sin'
   processes = ['app']
 
 [[vm]]
-  memory = '256mb'
-  cpu_kind = 'shared'
-  cpus = 1
+  size = 'shared-cpu-1x'
