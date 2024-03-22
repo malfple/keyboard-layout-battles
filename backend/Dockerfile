@@ -20,7 +20,7 @@ RUN rm ./target/release/deps/klb_backend*
 RUN cargo build --release
 
 # final base image
-FROM rust:slim
+FROM debian:stable-slim
 
 # copy artifact from build stage and some other files
 COPY --from=build ./klb-backend/target/release/klb-backend .
