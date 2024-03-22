@@ -30,4 +30,5 @@ COPY ./settings/SettingsDocker.toml ./settings/Settings.toml
 COPY ./wordlist.json ./wordlist.json
 
 # run the binary
+EXPOSE 3000
 CMD ["./klb-backend"]
