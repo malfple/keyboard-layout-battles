@@ -19,3 +19,13 @@ diesel migration redo // check if the migration you made is correct
 Take a look at `/settings` folder. It contains some examples of config/settings files which you can fill depending on your local workstation setup.
 
 Copy one of the templates into a `Settings.toml` file and then update the values to suit your needs.
+
+# Docker
+
+```
+# Build
+docker build -t klb-backend .
+
+# Run container
+docker run -p 127.0.0.1:3000:3000 --rm --name test-be klb-backend
+```

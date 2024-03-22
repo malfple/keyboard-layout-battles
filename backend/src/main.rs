@@ -25,10 +25,11 @@ pub struct AppState {
 #[tokio::main]
 async fn main() {
     let settings = settings::AppSettings::new().expect("settings cannot be initialized");
+    let app_addr = settings.general.app_addr.clone();
 
     tracing_subscriber::registry()
         .with(tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-            "backend=debug,tower_http=debug".into()
+            "klb_backend=debug,tower_http=debug".into()
         }))
         .with(tracing_subscriber::fmt::layer())
         .init();
@@ -59,7 +60,7 @@ async fn main() {
             }))
         .with_state(state);
 
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
+    let listener = tokio::net::TcpListener::bind(app_addr)
         .await
         .unwrap();
     tracing::info!("listening on {}", listener.local_addr().unwrap());

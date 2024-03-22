@@ -1,5 +1,5 @@
 [general]
-app_addr = "127.0.0.1:3000"
+app_addr = "0.0.0.0:3000"
 token_secret = "test-secret"
 
 [database]

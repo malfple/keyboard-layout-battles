@@ -9,6 +9,7 @@ pub struct AppSettings {
 
 #[derive(Debug, Deserialize)]
 pub struct General {
+    pub app_addr: String,
     pub token_secret: String,
 }
 
