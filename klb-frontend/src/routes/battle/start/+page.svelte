@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
+	import { handleFetchPromise } from "$lib/api";
 	import KeyboardInputGuide from "$lib/guide/KeyboardInputGuide.svelte";
 	import KeyboardInput, { type SubmitData } from "$lib/keyboard/KeyboardInput.svelte";
 	import type { CreateBattleRequest, CreateBattleResponse } from "$lib/schema";
@@ -17,24 +18,20 @@
             is_personal: false,
         }
 
-        fetch("/api/battle", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
+        handleFetchPromise(
+            fetch("/api/battle", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(req),
+            }),
+            (data: CreateBattleResponse) => {
+                console.log("start battle!")
+                goto("/battle/" + data.id);
             },
-            body: JSON.stringify(req),
-        })
-        .then(resp => resp.json().then((data: CreateBattleResponse) => {
-            if(!resp.ok) throw {status: resp.status, data: data};
-            console.log("start battle!")
-            goto("/battle/" + data.id);
-        }))
-        .catch((err: {status: number, data: CreateBattleResponse}) => {
-            toastStore.trigger({
-                message: `error: ${err.data.error}, msg: ${err.data.error_message}`,
-                background: "variant-filled-error"
-            });
-        });
+            toastStore,
+        );
     }
 </script>
 

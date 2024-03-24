@@ -3,22 +3,15 @@
 	import type { GetLayoutListResponse, LayoutLite } from "$lib/schema";
 	import { goto } from "$app/navigation";
 	import { getToastStore } from "@skeletonlabs/skeleton";
+	import { handleFetchPromise } from "$lib/api";
 
     const toastStore = getToastStore();
     let layouts: LayoutLite[];
 
     onMount(async () => {
-        fetch("/api/layouts")
-        .then(resp => resp.json().then((data: GetLayoutListResponse) => {
-            if(!resp.ok) throw {status: resp.status, data: data};
+        handleFetchPromise(fetch("/api/layouts"), (data: GetLayoutListResponse) => {
             layouts = data.layouts;
-        }))
-        .catch((err: {status: number, data: GetLayoutListResponse}) => {
-            toastStore.trigger({
-                message: `error: ${err.data.error}, msg: ${err.data.error_message}`,
-                background: "variant-filled-error"
-            });
-        });
+        }, toastStore);
     })
 </script>
 

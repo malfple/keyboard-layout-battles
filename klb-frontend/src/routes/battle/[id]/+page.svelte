@@ -5,6 +5,7 @@
     import type { PageData } from "./$types";
 	import { goto } from "$app/navigation";
 	import ResultPanel from "$lib/ResultPanel.svelte";
+	import { handleFetchPromise } from "$lib/api";
 
     export let data: PageData
 
@@ -25,32 +26,28 @@
             comfort_choice: e.detail.comfort,
         }
 
-        fetch("/api/battle", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
+        handleFetchPromise(
+            fetch("/api/battle", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(req),
+            }),
+            (data: FinalizeBattleResponse) => {
+                console.log("finalize battle!");
+                battleResult = data;
+                // scroll to view
+                setTimeout(() => {
+                    toastStore.trigger({
+                        message: "Results submitted",
+                        background: "variant-filled-success",
+                    });
+                    resultBox.scrollIntoView({ behavior: "smooth" });
+                }, 1000)
             },
-            body: JSON.stringify(req),
-        })
-        .then(resp => resp.json().then((data: FinalizeBattleResponse) => {
-            if(!resp.ok) throw {status: resp.status, data: data};
-            console.log("finalize battle!");
-            battleResult = data;
-            // scroll to view
-            setTimeout(() => {
-                toastStore.trigger({
-                    message: "Results submitted",
-                    background: "variant-filled-success",
-                });
-                resultBox.scrollIntoView({ behavior: "smooth" });
-            }, 1000)
-        }))
-        .catch((err: {status: number, data: FinalizeBattleResponse}) => {
-            toastStore.trigger({
-                message: `error: ${err.data.error}, msg: ${err.data.error_message}`,
-                background: "variant-filled-error"
-            });
-        });
+            toastStore,
+        );
     }
 </script>
 
