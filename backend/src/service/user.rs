@@ -33,7 +33,7 @@ pub async fn login(
     let valid = bcrypt::verify(&req.password, &user.password)?;
 
     if valid {
-        let token = auth::generate_access_token(user.id, &user.username, &state.settings.general.token_secret);
+        let token = auth::generate_access_token(user.id, &user.username, &state.settings.token_secret);
 
         Ok(Json(LoginResponse{
             message: "login success".into(),

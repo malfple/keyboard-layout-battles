@@ -25,7 +25,7 @@ pub struct AppState {
 #[tokio::main]
 async fn main() {
     let settings = settings::AppSettings::new().expect("settings cannot be initialized");
-    let app_addr = settings.general.app_addr.clone();
+    let app_addr = settings.app_addr.clone();
 
     tracing_subscriber::registry()
         .with(tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
