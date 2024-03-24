@@ -4,6 +4,7 @@
 	import { getToastStore } from "@skeletonlabs/skeleton";
 	import { onMount } from "svelte";
 	import type { PageData } from "./$types";
+	import { handleFetchPromise } from "$lib/api";
 
     export let data: PageData;
 
@@ -12,17 +13,9 @@
     let battles: BattleHistoryLite[];
 
     onMount(async () => {
-        fetch("/api/battle/histories?limit=10")
-        .then(resp => resp.json().then((data: GetBattleHistoryListResponse) => {
-            if(!resp.ok) throw {status: resp.status, data: data};
+        handleFetchPromise(fetch("/api/battle/histories?limit=10"), (data: GetBattleHistoryListResponse) => {
             battles = data.battles;
-        }))
-        .catch((err: {status: number, data: GetBattleHistoryListResponse}) => {
-            toastStore.trigger({
-                message: `error: ${err.data.error}, msg: ${err.data.error_message}`,
-                background: "variant-filled-error"
-            });
-        });
+        }, toastStore);
     })
 </script>
 

@@ -1,12 +1,12 @@
 # Get Battle History List
 
-GET http://localhost:3000/api/battle/histories
+GET http://localhost:3007/battle/histories
 ?limit=10
 
 ###
 
 # Get Battle History
 
-GET http://localhost:3000/api/battle/history/1
+GET http://localhost:3007/battle/history/1
 
 ###

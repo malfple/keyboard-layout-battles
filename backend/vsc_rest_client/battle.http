@@ -4,7 +4,7 @@
 # Login
 
 # @name login
-POST http://localhost:3000/api/login
+POST http://localhost:3007/login
 Content-Type: application/x-www-form-urlencoded
 
 &username=admin
@@ -15,7 +15,7 @@ Content-Type: application/x-www-form-urlencoded
 # Create Battle
 
 # @name create_battle
-POST http://localhost:3000/api/battle
+POST http://localhost:3007/battle
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -28,14 +28,14 @@ Authorization: Bearer {{accessToken}}
 
 # Get Battle
 
-GET http://localhost:3000/api/battle/{{battleID}}
+GET http://localhost:3007/battle/{{battleID}}
 Authorization: Bearer {{accessToken}}
 
 ###
 
 # Finalize Battle
 
-PUT http://localhost:3000/api/battle
+PUT http://localhost:3007/battle
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 

@@ -2,7 +2,7 @@
 
 # Login
 
-POST http://localhost:3000/api/login
+POST http://localhost:3007/login
 Content-Type: application/x-www-form-urlencoded
 
 &username=admin
@@ -12,7 +12,7 @@ Content-Type: application/x-www-form-urlencoded
 
 # Register
 
-POST http://localhost:3000/api/register
+POST http://localhost:3007/register
 Content-Type: application/x-www-form-urlencoded
 
 &username=admin2
@@ -22,6 +22,6 @@ Content-Type: application/x-www-form-urlencoded
 
 # Get User data
 
-GET http://localhost:3000/api/user/admin
+GET http://localhost:3007/user/admin
 
 ###
