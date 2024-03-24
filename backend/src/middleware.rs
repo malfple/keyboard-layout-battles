@@ -20,7 +20,7 @@ pub async fn relaxed_auth_middleware(
 ) -> Response {
     // decode authorization header and create identity
     let identity = if let Some(TypedHeader(Authorization(bearer))) = authorization {
-        let decoded_token = match auth::validate_access_token(bearer.token(), &state.settings.general.token_secret) {
+        let decoded_token = match auth::validate_access_token(bearer.token(), &state.settings.token_secret) {
             Ok(token) => token,
             Err(err) => return err.into_response(),
         };

@@ -24,7 +24,7 @@ pub struct DBClient {
 
 impl DBClient {
     pub fn new(settings: &AppSettings) -> DBClient {
-        let config = AsyncDieselConnectionManager::<diesel_async::AsyncMysqlConnection>::new(&settings.database.url);
+        let config = AsyncDieselConnectionManager::<diesel_async::AsyncMysqlConnection>::new(&settings.database_url);
         let pool = Pool::builder(config).build().unwrap();
 
         DBClient {

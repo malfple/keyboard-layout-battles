@@ -1,6 +1,3 @@
-[general]
 app_addr = "127.0.0.1:3007"
 token_secret = "test-secret"
-
-[database]
-url = "mysql://malfple_test:Password1@127.0.0.1:3306/klb"
+database_url = "mysql://malfple_test:Password1@127.0.0.1:3306/klb"
