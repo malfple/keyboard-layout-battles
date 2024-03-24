@@ -15,7 +15,10 @@ const handleAPIProxy: Handle = async ({event}) => {
         // propagate the request method and body
         body: event.request.body,
         method: event.request.method,
-        headers: event.request.headers,
+        headers: {
+            "Accept-Encoding": "", // to solve net::ERR_CONTENT_DECODING_FAILED
+            ...event.request.headers
+        },
     }).catch((err) => {
         console.log("Could not proxy API request: ", err);
         throw err;

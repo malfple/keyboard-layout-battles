@@ -5,11 +5,12 @@ import { defineConfig } from 'vite';
 export default defineConfig({
 	plugins: [sveltekit(), purgeCss()],
 	server: {
-		proxy: {
-			'/api/': {
-				target: 'http://localhost:3007',
-				rewrite: (path) => path.replace(/^\/api/, '')
-			}
-		}
+		// disable proxy because there is already proxy in hooks
+		// proxy: {
+		// 	'/api/': {
+		// 		target: 'http://localhost:3007',
+		// 		rewrite: (path) => path.replace(/^\/api/, '')
+		// 	}
+		// }
 	}
 });
