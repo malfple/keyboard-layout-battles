@@ -10,7 +10,7 @@
 </script>
 
 <script lang="ts">
-	import { ALLOWED_CHARS } from "$lib/keyboard/KeyboardInput.svelte";
+	import { ALLOWED_CHARS, CHAR_PREVENT_DEFAULT } from "$lib/keyboard/KeyboardInput.svelte";
 	import { ProgressRadial } from "@skeletonlabs/skeleton";
 
 	import { createEventDispatcher, onMount } from "svelte";
@@ -183,6 +183,10 @@
     // main logic here
     function onKeyDown(e: KeyboardEvent) {
         if(isDone()) return;
+
+        if(CHAR_PREVENT_DEFAULT.includes(e.key)) {
+            e.preventDefault();
+        }
 
         if(round < ROUNDS) {
             if(ALLOWED_CHARS.includes(e.key) || e.key == " ") {
