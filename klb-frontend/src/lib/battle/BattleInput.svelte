@@ -122,7 +122,7 @@
             comfortBox.classList.remove("invisible");
             comfortBox.style.opacity = "100";
 
-            topText = "Which layout is more comfortable? (press 1 or 2 to select and space/enter to decide)"
+            topText = "Which layout is more comfortable? (press 1 or 2 to select and enter to decide)"
         }
     }
 
@@ -218,7 +218,7 @@
             } else if(e.key == "2") {
                 selected = 1;
                 moveSelector();
-            } else if(e.key == " " || e.key == "Enter") {
+            } else if(e.key == "Enter") {
                 e.preventDefault();
                 comfortPick.push(selected+1); // backend comfort choice is 1-based
                 nextState();
