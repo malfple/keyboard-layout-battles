@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
     const REQUIRED_CHARS = "abcdefghijklmnopqrstuvwxyz'"
     export const ALLOWED_CHARS = "abcdefghijklmnopqrstuvwxyz.,<>;:\'\"/?()[]{}-";
-    const CHAR_PREVENT_DEFAULT = ".,<>;:\'\"/?()[]{}-";
+    export const CHAR_PREVENT_DEFAULT = ".,<>;:\'\"/?()[]{}-";
     const POS_TOP = [
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
         52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52,
