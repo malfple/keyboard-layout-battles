@@ -11,14 +11,17 @@ const handleAPIProxy: Handle = async ({event}) => {
     const urlPath = `${BACKEND_URL}${strippedPath}${event.url.search}`;
     const proxiedUrl = new URL(urlPath);
 
+    // add additional headers
+    event.request.headers.set("accept-encoding", ""); // to solve net::ERR_CONTENT_DECODING_FAILED
+    // console.log(event.request.body, event.request.method, event.request.headers);
+
     return fetch(proxiedUrl.toString(), {
         // propagate the request method and body
         body: event.request.body,
         method: event.request.method,
-        headers: {
-            "Accept-Encoding": "", // to solve net::ERR_CONTENT_DECODING_FAILED
-            ...event.request.headers
-        },
+        headers: event.request.headers,
+        // @ts-ignore
+        duplex: "half", // required if body is provided
     }).catch((err) => {
         console.log("Could not proxy API request: ", err);
         throw err;

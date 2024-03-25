@@ -52,4 +52,14 @@
 	<!-- Page Route Content -->
 
 	<slot />
+	<!-- artificial safelist because THE ACTUAL GODDAMN SAFELIST IS NOT WORKING IN PRODUCTION!!!!!!! -->
+	<div class="hidden bg-secondary-100" />
+	<div class="hidden bg-secondary-200" />
+	<div class="hidden bg-secondary-300" />
+	<div class="hidden bg-secondary-400" />
+	<div class="hidden bg-secondary-500" />
+	<div class="hidden bg-secondary-600" />
+	<div class="hidden bg-secondary-700" />
+	<div class="hidden bg-secondary-800" />
+	<div class="hidden bg-secondary-900" />
 </AppShell>
