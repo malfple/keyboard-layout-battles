@@ -53,6 +53,13 @@
     $: ready = layoutData.length == 31;
 
     function onKeyDown(e: KeyboardEvent) {
+        if(e.key == "Backspace") { // allow backspace
+            if(layoutData.length > 0) {
+                layoutData = layoutData.substring(0, layoutData.length - 1);
+            }
+            return;
+        }
+
         if(layoutData.length == 31) {
             return;
         }
