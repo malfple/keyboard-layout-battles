@@ -26,18 +26,40 @@
 	import KeyMarker from "./KeyMarker.svelte";
     import Keyboard from "./Keyboard.svelte";
 	import { createEventDispatcher } from "svelte";
+	import { get } from "svelte/store";
+	import { layoutDataStore } from "$lib/stores";
 
     const toastStore = getToastStore();
     const dispatch = createEventDispatcher<{submit:SubmitData}>();
 
     export let disableSubmit = false;
+    export let useStore;
+
     let layoutData = "";
+    if(useStore) { // load saved layout
+        layoutData = get(layoutDataStore);
+        if(layoutData != "") {
+            toastStore.trigger({
+                message: "Loaded layout from local storage! Make sure it is the current one you are using.",
+                background: "variant-filled-primary",
+            });
+        }
+    }
     let markerTop = 0;
     let markerLeft = 0;
+    $: markerTop = POS_TOP[layoutData.length];
+    $: markerLeft = POS_LEFT[layoutData.length];
     let ready = false;
     $: ready = layoutData.length == 31;
 
     function onKeyDown(e: KeyboardEvent) {
+        if(e.key == "Backspace") { // allow backspace
+            if(layoutData.length > 0) {
+                layoutData = layoutData.substring(0, layoutData.length - 1);
+            }
+            return;
+        }
+
         if(layoutData.length == 31) {
             return;
         }
@@ -55,16 +77,12 @@
                 })
             } else {
                 layoutData = layoutData + e.key;
-                markerTop = POS_TOP[layoutData.length];
-                markerLeft = POS_LEFT[layoutData.length];
             }
         }
     }
 
     function reset() {
         layoutData = "";
-        markerTop = 0;
-        markerLeft = 0;
     }
 
     function submit() {
@@ -79,6 +97,9 @@
                 return;
             }
         }
+
+        // save layout
+        layoutDataStore.set(layoutData);
 
         dispatch("submit", {
             layoutData: layoutData,

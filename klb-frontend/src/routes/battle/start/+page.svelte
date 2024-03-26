@@ -51,7 +51,7 @@
             }}>How to input your keyboard layout</button>
         </p>
         <p>
-            <KeyboardInput on:submit={toBattle} {disableSubmit} />
+            <KeyboardInput on:submit={toBattle} {disableSubmit} useStore={true} />
         </p>
     </div>
 </div>
