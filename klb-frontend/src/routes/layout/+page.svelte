@@ -82,7 +82,7 @@
         </p>
         {#if layouts}
             <h2 class="h2">Top Layouts</h2>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-10">
                 <div>
                     <div class="p-4">
                         Speed rating
