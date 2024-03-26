@@ -246,11 +246,12 @@ pub async fn finalize_battle(
         let comfort = if !content_word.should_swap {
             req.comfort_choice[i]
         } else {
-            if req.comfort_choice[i] == 1 {2} else {1}
+            if req.comfort_choice[i] == 1 {2} else if req.comfort_choice[i] == 2 {1} else {0}
         };
         match comfort {
             1 => result.comfort_score += 1,
             2 => result.comfort_score -= 1,
+            0 => result.comfort_score += 0, // draw, do nothing
             _ => tracing::error!("comfort choice error"),
         }
         // push to result
@@ -287,7 +288,7 @@ pub async fn finalize_battle(
 }
 
 fn validate_comfort_choice(comfort: i32) -> bool {
-    comfort == 1 || comfort == 2
+    comfort == 0 || comfort == 1 || comfort == 2
 }
 
 fn calc_outcome(score: i32) -> Outcomes {
