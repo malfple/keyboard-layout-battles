@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
     const REPEATS = 3;
-    const ROUNDS = 3;
+    const ROUNDS = 2;
     // total words in a pair = REPEAT * ROUNDS * 2
 
     export interface SubmitData {
@@ -235,7 +235,7 @@
             for(let j=0; j<2; j++) {
                 let timeArray = times[i][j];
                 timeArray.sort((a, b) => (a-b));
-                bestTimes[i].push(timeArray[0]+timeArray[1]+timeArray[2]);
+                bestTimes[i].push(timeArray[0]);
             }
         }
         console.log("submit", bestTimes, comfortPick);
