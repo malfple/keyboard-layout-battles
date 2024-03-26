@@ -32,17 +32,6 @@
         console.log("error", wordPairs)
     }
 
-    let sections: string[][] = [];
-
-    for(let wordPair of wordPairs) {
-        let words = [];
-        for(let i=0; i<3; i++) words.push(wordPair[0]);
-        for(let i=0; i<3; i++) words.push(wordPair[1]);
-        for(let i=0; i<3; i++) words.push(wordPair[0]);
-        for(let i=0; i<3; i++) words.push(wordPair[1]);
-        sections.push(words);
-    }
-
     // game elements
     let progress = 0;
     let topText = "";

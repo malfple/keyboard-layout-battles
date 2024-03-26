@@ -11,7 +11,7 @@ use serde::{Serialize, Deserialize};
 use nanoid::nanoid;
 
 const MIN_LAYOUT_COUNT: u64 = 5;
-const WORD_COUNT: usize = 3;
+const WORD_COUNT: usize = 5;
 const MAX_WORD_LEN: usize = 7;
 const GLICKO_C_VALUE: f64 = 20.0;
 
