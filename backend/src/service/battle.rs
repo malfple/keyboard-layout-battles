@@ -13,6 +13,7 @@ use nanoid::nanoid;
 const MIN_LAYOUT_COUNT: u64 = 5;
 const WORD_COUNT: usize = 3;
 const MAX_WORD_LEN: usize = 7;
+const GLICKO_C_VALUE: f64 = 20.0;
 
 #[derive(Debug, Deserialize)]
 pub struct CreateBattleRequest {
@@ -303,7 +304,7 @@ fn calc_outcome(score: i32) -> Outcomes {
 fn update_rating(rating_1: &mut RatingData, rating_2: &mut RatingData, score: i32, comfort_score: i32) {
     tracing::debug!("old rating data {:?} {:?}", rating_1, rating_2);
 
-    let config = GlickoConfig::new();
+    let config = GlickoConfig { c: GLICKO_C_VALUE };
     (rating_1.global, rating_2.global) = glicko(
         &rating_1.global,
         &rating_2.global,
