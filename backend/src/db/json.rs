@@ -11,7 +11,7 @@ pub struct ContentData {
     pub words: Vec<ContentWordData>,
 }
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ContentWordData {
     pub original: String,
     pub translated_1: String,
@@ -50,19 +50,20 @@ pub fn decode_rating_data(rating_data_option: Option<serde_json::Value>, rating:
     }
 }
 
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
 pub struct ResultData {
     pub words: Vec<ResultWordData>,
     pub score: i32,
     pub comfort_score: i32,
 }
 
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
 pub struct ResultWordData {
     pub original: String,
     pub translated_1: String,
     pub translated_2: String,
     pub time_1: i64,
     pub time_2: i64,
+    pub score: i32,
     pub comfort_choice: i32,
 }
