@@ -22,6 +22,7 @@ export interface ResultWordData {
     translated_2: string
     time_1: number
     time_2: number
+    score: number
     comfort_choice: number
 }
 
