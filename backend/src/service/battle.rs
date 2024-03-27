@@ -11,9 +11,10 @@ use serde::{Serialize, Deserialize};
 use nanoid::nanoid;
 
 const MIN_LAYOUT_COUNT: u64 = 5;
-const WORD_COUNT: usize = 3;
+const WORD_COUNT: usize = 5;
 const MAX_WORD_LEN: usize = 7;
 const GLICKO_C_VALUE: f64 = 20.0;
+const TIME_PERCENT_FOR_DRAW: f64 = 10.0;
 
 #[derive(Debug, Deserialize)]
 pub struct CreateBattleRequest {
@@ -221,48 +222,7 @@ pub async fn finalize_battle(
 
     let content = decode_content_data(battle.content_data)?;
 
-    // calculate score
-    let mut result = ResultData{
-        words: Vec::new(),
-        score: 0, // positive = first wins, negative = second wins
-        comfort_score: 0, // same as above
-    };
-    for i in 0..WORD_COUNT {
-        let content_word = &content.words[i];
-        // time
-        let (time_1, time_2) = if !content_word.should_swap {
-            (req.times[i].0, req.times[i].1)
-        } else {
-            (req.times[i].1, req.times[i].0)
-        };
-
-        if time_1 < time_2 {
-            result.score += 1;
-        } else if time_1 > time_2 {
-            result.score -= 1;
-        } // if draw = do nothing
-
-        // comfort
-        let comfort = if !content_word.should_swap {
-            req.comfort_choice[i]
-        } else {
-            if req.comfort_choice[i] == 1 {2} else {1}
-        };
-        match comfort {
-            1 => result.comfort_score += 1,
-            2 => result.comfort_score -= 1,
-            _ => tracing::error!("comfort choice error"),
-        }
-        // push to result
-        result.words.push(ResultWordData{
-            original: content_word.original.clone(), // TODO: optimize
-            translated_1: content_word.translated_1.clone(),
-            translated_2: content_word.translated_2.clone(),
-            time_1,
-            time_2,
-            comfort_choice: comfort,
-        })
-    }
+    let result = calc_result(&content, req.times, req.comfort_choice);
 
     // commit to history
     let rows_affected = state.db_client.make_battle_history_and_update_ratings(
@@ -287,7 +247,60 @@ pub async fn finalize_battle(
 }
 
 fn validate_comfort_choice(comfort: i32) -> bool {
-    comfort == 1 || comfort == 2
+    comfort == 0 || comfort == 1 || comfort == 2
+}
+
+fn calc_result(content: &ContentData, times: Vec<(i64, i64)>, comfort_choice: Vec<i32>) -> ResultData {
+    // calculate score
+    let mut result = ResultData{
+        words: Vec::new(),
+        score: 0, // positive = first wins, negative = second wins
+        comfort_score: 0, // same as above
+    };
+    for i in 0..content.words.len() {
+        let content_word = &content.words[i];
+        // time
+        let (time_1, time_2) = if !content_word.should_swap {
+            (times[i].0, times[i].1)
+        } else {
+            (times[i].1, times[i].0)
+        };
+
+        let mut score = 0;
+        let min_diff = ((std::cmp::min(time_1, time_2) as f64) * TIME_PERCENT_FOR_DRAW / 100.0).round() as i64;
+        if time_1 + min_diff < time_2 { // time_2 is atleast min_diff higher than time_1
+            result.score += 1;
+            score = 1;
+        } else if time_1 > time_2 + min_diff { // vice verca
+            result.score -= 1;
+            score = -1;
+        } // if draw = do nothing
+
+        // comfort
+        let comfort = if !content_word.should_swap {
+            comfort_choice[i]
+        } else {
+            if comfort_choice[i] == 1 {2} else if comfort_choice[i] == 2 {1} else {0}
+        };
+        match comfort {
+            1 => result.comfort_score += 1,
+            2 => result.comfort_score -= 1,
+            0 => result.comfort_score += 0, // draw, do nothing
+            _ => tracing::error!("comfort choice error"),
+        }
+        // push to result
+        result.words.push(ResultWordData{
+            original: content_word.original.clone(), // TODO: optimize
+            translated_1: content_word.translated_1.clone(),
+            translated_2: content_word.translated_2.clone(),
+            time_1,
+            time_2,
+            score,
+            comfort_choice: comfort,
+        })
+    }
+
+    result
 }
 
 fn calc_outcome(score: i32) -> Outcomes {
@@ -317,4 +330,105 @@ fn update_rating(rating_1: &mut RatingData, rating_2: &mut RatingData, score: i3
         &config);
 
     tracing::debug!("new rating data {:?} {:?}", rating_1, rating_2);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_calc_result() {
+        let no_swap: ContentWordData = ContentWordData{
+            original: "some_word".to_owned(),
+            translated_1: "some_word".to_owned(),
+            translated_2: "some_word".to_owned(),
+            should_swap: false,
+        };
+    
+        let with_swap: ContentWordData = ContentWordData{
+            original: "some_word".to_owned(),
+            translated_1: "some_word".to_owned(),
+            translated_2: "some_word".to_owned(),
+            should_swap: true,
+        };
+    
+        let result_1: ResultWordData = ResultWordData{
+            original: "some_word".to_owned(),
+            translated_1: "some_word".to_owned(),
+            translated_2: "some_word".to_owned(),
+            time_1: 100,
+            time_2: 200,
+            score: 1,
+            comfort_choice: 1,
+        };
+    
+        let result_2: ResultWordData = ResultWordData{
+            original: "some_word".to_owned(),
+            translated_1: "some_word".to_owned(),
+            translated_2: "some_word".to_owned(),
+            time_1: 200,
+            time_2: 100,
+            score: -1,
+            comfort_choice: 2,
+        };
+
+        // test swaps
+        let result = calc_result(&ContentData{
+            words: vec![no_swap.clone(), with_swap.clone(), with_swap.clone()],
+        }, vec![(100, 200), (100, 200), (100, 200)], vec![1, 1, 1]);
+
+        assert_eq!(result, ResultData{
+            words: vec![result_1.clone(), result_2.clone(), result_2.clone()],
+            score: -1,
+            comfort_score: -1,
+        });
+
+        // test draw
+        let result = calc_result(&ContentData{
+            words: vec![no_swap.clone(), with_swap.clone()],
+        }, vec![(100, 200), (100, 200)], vec![1, 1]);
+
+        assert_eq!(result, ResultData{
+            words: vec![result_1.clone(), result_2.clone()],
+            score: 0,
+            comfort_score: 0,
+        });
+
+        // test draw in word
+        let result = calc_result(&ContentData{
+            words: vec![no_swap.clone(), no_swap.clone()],
+        }, vec![(92, 100), (100, 200)], vec![0, 1]);
+
+        assert_eq!(result, ResultData{
+            words: vec![ResultWordData{
+                original: "some_word".to_owned(),
+                translated_1: "some_word".to_owned(),
+                translated_2: "some_word".to_owned(),
+                time_1: 92,
+                time_2: 100,
+                score: 0,
+                comfort_choice: 0,
+            }, result_1.clone()],
+            score: 1,
+            comfort_score: 1,
+        });
+
+        let result = calc_result(&ContentData{
+            words: vec![no_swap.clone(), no_swap.clone()],
+        }, vec![(88, 100), (100, 200)], vec![0, 1]);
+
+        assert_eq!(result, ResultData{
+            words: vec![ResultWordData{
+                original: "some_word".to_owned(),
+                translated_1: "some_word".to_owned(),
+                translated_2: "some_word".to_owned(),
+                time_1: 88,
+                time_2: 100,
+                score: 1,
+                comfort_choice: 0,
+            }, result_1.clone()],
+            score: 2,
+            comfort_score: 1,
+        });
+    }
 }

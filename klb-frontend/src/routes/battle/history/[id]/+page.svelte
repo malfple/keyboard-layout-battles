@@ -8,6 +8,10 @@ import type { PageData } from "./$types";
 <div class="container mx-auto p-8 flex justify-center">
     <div class="space-y-10 flex flex-col">
         <h1 class="h1">Battle History {data.battle_history.id}</h1>
+
+        <p>
+            If the times are too close, it is regarded as a draw.
+        </p>
         
         <ResultPanel
             layouts={data.layouts}
@@ -16,7 +20,7 @@ import type { PageData } from "./$types";
             result={data.battle_history.result_data}
         />
 
-        <div class="grid grid-cols-3 gap-10 text-center">
+        <div class="grid grid-cols-3 gap-4 text-center">
             <hr>
             <hr>
             <hr>

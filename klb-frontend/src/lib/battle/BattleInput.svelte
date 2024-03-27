@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
     const REPEATS = 3;
-    const ROUNDS = 3;
+    const ROUNDS = 2;
     // total words in a pair = REPEAT * ROUNDS * 2
 
     export interface SubmitData {
@@ -32,17 +32,6 @@
         console.log("error", wordPairs)
     }
 
-    let sections: string[][] = [];
-
-    for(let wordPair of wordPairs) {
-        let words = [];
-        for(let i=0; i<3; i++) words.push(wordPair[0]);
-        for(let i=0; i<3; i++) words.push(wordPair[1]);
-        for(let i=0; i<3; i++) words.push(wordPair[0]);
-        for(let i=0; i<3; i++) words.push(wordPair[1]);
-        sections.push(words);
-    }
-
     // game elements
     let progress = 0;
     let topText = "";
@@ -63,6 +52,7 @@
     let timeSinceWordStart = 0;
     let lastTime = 0;
 
+    let selectedIndex = 1;
     let selected = 0;
 
     let times: number[][][] = [];
@@ -122,7 +112,7 @@
             comfortBox.classList.remove("invisible");
             comfortBox.style.opacity = "100";
 
-            topText = "Which layout is more comfortable? (press 1 or 2 to select and enter to decide)"
+            topText = "Which layout is more comfortable? (press 0, 1, 2 to select and enter to decide)"
         }
     }
 
@@ -136,7 +126,7 @@
     }
 
     function moveSelector() {
-        let comfortButton = comfortBox.children[selected] as HTMLButtonElement;
+        let comfortButton = comfortBox.children[selectedIndex] as HTMLButtonElement;
         selector.style.transform = `translate(${comfortButton.offsetLeft}px, ${comfortButton.offsetTop}px)`;
         (selector.children[0] as HTMLDivElement).style.width = `${comfortButton.offsetWidth}px`;
     }
@@ -213,14 +203,20 @@
             }
         } else {
             if(e.key == "1") {
-                selected = 0;
+                selectedIndex = 0;
+                selected = 1;
                 moveSelector();
             } else if(e.key == "2") {
-                selected = 1;
+                selectedIndex = 2;
+                selected = 2;
+                moveSelector();
+            } else if(e.key == "0") {
+                selectedIndex = 1;
+                selected = 0;
                 moveSelector();
             } else if(e.key == "Enter") {
                 e.preventDefault();
-                comfortPick.push(selected+1); // backend comfort choice is 1-based
+                comfortPick.push(selected);
                 nextState();
                 render();
             }
@@ -235,7 +231,7 @@
             for(let j=0; j<2; j++) {
                 let timeArray = times[i][j];
                 timeArray.sort((a, b) => (a-b));
-                bestTimes[i].push(timeArray[0]+timeArray[1]+timeArray[2]);
+                bestTimes[i].push(timeArray[0]);
             }
         }
         console.log("submit", bestTimes, comfortPick);
@@ -289,13 +285,16 @@
                         {/each}
                     </div>
                 </div>
-                <div bind:this={comfortBox} class="relative grid grid-cols-2 invisible">
-                    <button class="btn variant-soft-secondary text-5xl" on:click={() => {selected = 0; moveSelector()}}>
+                <div bind:this={comfortBox} class="relative grid grid-cols-3 invisible">
+                    <button class="btn variant-soft-secondary text-5xl" on:click={() => {selectedIndex = 0; moveSelector()}}>
                         {#if pairIndex < wordPairs.length}
                             [1] {wordPairs[pairIndex][0]}
                         {/if}
                     </button>
-                    <button class="btn variant-soft-secondary text-5xl" on:click={() => {selected = 1; moveSelector()}}>
+                    <button class="btn variant-soft-secondary text-2xl" on:click={() => {selectedIndex = 1; moveSelector()}}>
+                        [0] Felt the same
+                    </button>
+                    <button class="btn variant-soft-secondary text-5xl" on:click={() => {selectedIndex = 2; moveSelector()}}>
                         {#if pairIndex < wordPairs.length}
                             [2] {wordPairs[pairIndex][1]}
                         {/if}
