@@ -88,15 +88,16 @@
     function submit() {
         // validate base layout
         // character completeness
-        for(let c of REQUIRED_CHARS) {
-            if(!layoutData.includes(c)) {
-                toastStore.trigger({
-                    message: `key ${c} is missing`,
-                    background: "variant-filled-error",
-                })
-                return;
-            }
-        }
+        // for(let c of REQUIRED_CHARS) {
+        //     if(!layoutData.includes(c)) {
+        //         toastStore.trigger({
+        //             message: `key ${c} is missing`,
+        //             background: "variant-filled-error",
+        //         })
+        //         return;
+        //     }
+        // }
+        // no longer need to have required chars
 
         // save layout
         layoutDataStore.set(layoutData);
