@@ -243,7 +243,7 @@
     }
 </script>
 
-<style>
+<style lang="postcss">
     .animate-shake {
         animation: shake 200ms;
     }
