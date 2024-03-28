@@ -6,6 +6,7 @@
 	import { goto } from "$app/navigation";
 	import ResultPanel from "$lib/ResultPanel.svelte";
 	import { handleFetchPromise } from "$lib/api";
+	import BattleTips from "$lib/battle/BattleTips.svelte";
 
     export let data: PageData
 
@@ -55,9 +56,7 @@
     <div class="container mx-auto flex">
         <div class="space-y-10 flex flex-col">
             <h1 class="h1">Battle!</h1>
-            <div>
-                Type type type! End every word with a spacebar! Mistakes will reset the word and the timer.
-            </div>
+            <BattleTips />
         </div>
     </div>
     <BattleInput wordPairs={data.words} on:submit={finalizeBattle}/>
