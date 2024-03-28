@@ -1,4 +1,4 @@
-const REQUIRED_CHARS: &str = "abcdefghijklmnopqrstuvwxyz'";
+// const REQUIRED_CHARS: &str = "abcdefghijklmnopqrstuvwxyz'";
 const ALLOWED_CHARS: &str = "abcdefghijklmnopqrstuvwxyz.,<>;:\'\"/?()[]{}-";
 pub const DEFAULT_LAYOUT_DATA: &str = "qwertyuiopasdfghjkl;'zxcvbnm,./"; // QWERTY
 
@@ -23,11 +23,12 @@ pub fn validate_base_layout_data(layout_data: &str) -> bool {
     }
 
     // check character completeness + unique
-    for b in REQUIRED_CHARS.bytes() {
-        if counts[b as usize] != 1 {
-            return false;
-        }
-    }
+    // for b in REQUIRED_CHARS.bytes() {
+    //     if counts[b as usize] != 1 {
+    //         return false;
+    //     }
+    // }
+    // no longer need required chars
 
     true
 }

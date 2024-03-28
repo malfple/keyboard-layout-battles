@@ -52,7 +52,6 @@
     let timeSinceWordStart = 0;
     let lastTime = 0;
 
-    let selectedIndex = 1;
     let selected = 0;
 
     let times: number[][][] = [];
@@ -81,6 +80,8 @@
         timerFrame = requestAnimationFrame(step);
         return () => cancelAnimationFrame(timerFrame);
     });
+
+    $: selected, moveSelector();
 
     function isDone(): boolean {
         return pairIndex == wordPairs.length
@@ -126,6 +127,11 @@
     }
 
     function moveSelector() {
+        if(!comfortBox) return;
+        let selectedIndex = selected;
+        if(selected == 0) selectedIndex = 1;
+        else if(selected == 1) selectedIndex = 0;
+
         let comfortButton = comfortBox.children[selectedIndex] as HTMLButtonElement;
         selector.style.transform = `translate(${comfortButton.offsetLeft}px, ${comfortButton.offsetTop}px)`;
         (selector.children[0] as HTMLDivElement).style.width = `${comfortButton.offsetWidth}px`;
@@ -203,17 +209,11 @@
             }
         } else {
             if(e.key == "1") {
-                selectedIndex = 0;
                 selected = 1;
-                moveSelector();
             } else if(e.key == "2") {
-                selectedIndex = 2;
                 selected = 2;
-                moveSelector();
             } else if(e.key == "0") {
-                selectedIndex = 1;
                 selected = 0;
-                moveSelector();
             } else if(e.key == "Enter") {
                 e.preventDefault();
                 comfortPick.push(selected);
@@ -286,15 +286,15 @@
                     </div>
                 </div>
                 <div bind:this={comfortBox} class="relative grid grid-cols-3 invisible">
-                    <button class="btn variant-soft-secondary text-5xl" on:click={() => {selectedIndex = 0; moveSelector()}}>
+                    <button class="btn variant-soft-secondary text-5xl" on:click={() => {selected = 1}}>
                         {#if pairIndex < wordPairs.length}
                             [1] {wordPairs[pairIndex][0]}
                         {/if}
                     </button>
-                    <button class="btn variant-soft-secondary text-2xl" on:click={() => {selectedIndex = 1; moveSelector()}}>
+                    <button class="btn variant-soft-secondary text-2xl" on:click={() => {selected = 0}}>
                         [0] Felt the same
                     </button>
-                    <button class="btn variant-soft-secondary text-5xl" on:click={() => {selectedIndex = 2; moveSelector()}}>
+                    <button class="btn variant-soft-secondary text-5xl" on:click={() => {selected = 2}}>
                         {#if pairIndex < wordPairs.length}
                             [2] {wordPairs[pairIndex][1]}
                         {/if}

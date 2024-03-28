@@ -19,7 +19,7 @@ export async function handleFetchPromiseForLoad<PageDataType, RespType extends R
             return handleData(data);
         })
         .catch(() => {
-            throw {status: resp.status, data: {error_message: "fail to parse json"}}
+            throw {status: resp.status, data: {error: "fail to parse json", error_message: resp}}
         })
     )
     .catch((err: {status: number, data: RespType}) => {
@@ -41,7 +41,7 @@ export async function handleFetchPromise<RespType extends ResponseBase>(
             handleData(data);
         })
         .catch(() => {
-            throw {status: resp.status, data: {error_message: "fail to parse json"}}
+            throw {status: resp.status, data: {error: "fail to parse json", error_message: resp}}
         })
     )
     .catch((err: {status: number, data: RespType}) => {
