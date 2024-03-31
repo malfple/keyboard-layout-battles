@@ -98,15 +98,13 @@ async fn random_two_layouts(db_client: &DBClient) -> Result<(LayoutModel, Layout
     let mut best_pair: Option<(LayoutModel, LayoutModel)> = None;
     let mut diff = -1;
     for _ in 0..MAX_RANDOM_LAYOUT_ATTEMPTS {
-        // let random_seq_1 = rand::thread_rng().gen_range(1..=max_seq_id);
-        // let random_seq_2 = loop {
-        //     let seq = rand::thread_rng().gen_range(1..=max_seq_id);
-        //     if seq != random_seq_1 {
-        //         break seq;
-        //     }
-        // };
-        let random_seq_1 = 25;
-        let random_seq_2 = 26;
+        let random_seq_1 = rand::thread_rng().gen_range(1..=max_seq_id);
+        let random_seq_2 = loop {
+            let seq = rand::thread_rng().gen_range(1..=max_seq_id);
+            if seq != random_seq_1 {
+                break seq;
+            }
+        };
 
         let layout_1 = db_client.get_layout_by_sequence_id(random_seq_1).await?;
         let layout_2 = db_client.get_layout_by_sequence_id(random_seq_2).await?;
