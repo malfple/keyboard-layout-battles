@@ -5,7 +5,7 @@ use rand::Rng;
 use skillratings::{glicko::{glicko, GlickoConfig}, Outcomes};
 use crate::{
     db::{json::{decode_content_data, ContentData, ContentWordData, RatingData, ResultData, ResultWordData},
-    model::{BattleModel, LayoutModel}, DBClient}, error::AppError, layout_validation::validate_base_layout_data, middleware::Identity, words::translate_word, AppState
+    model::{BattleModel, LayoutModel}, DBClient}, error::AppError, layout_validation::{calc_layout_difference, validate_base_layout_data}, middleware::Identity, words::{translate_word, Wordlist}, AppState
 };
 use serde::{Serialize, Deserialize};
 use nanoid::nanoid;
@@ -15,6 +15,11 @@ const WORD_COUNT: usize = 5;
 const MAX_WORD_LEN: usize = 7;
 const GLICKO_C_VALUE: f64 = 20.0;
 const TIME_PERCENT_FOR_DRAW: f64 = 10.0;
+const MIN_TIME_FOR_DRAW: i64 = 25;
+
+const MAX_RANDOM_LAYOUT_ATTEMPTS: i32 = 3;
+const MIN_RANDOM_LAYOUT_DIFF: i32 = 4;
+const MAX_RANDOM_WORD_ATTEMPTS: i32 = 10;
 
 #[derive(Debug, Deserialize)]
 pub struct CreateBattleRequest {
@@ -51,9 +56,8 @@ pub async fn create_battle(
     tracing::debug!("random 2 layouts {:?}, {:?}", layout_1, layout_2);
 
     // generate content
-    let words = state.wordlist.random_words_with_limit(WORD_COUNT, MAX_WORD_LEN);
-    let content = construct_content(
-        words, &req.base_layout_data, &layout_1.layout_data, &layout_2.layout_data
+    let content = generate_content(
+        &state.wordlist, &req.base_layout_data, &layout_1.layout_data, &layout_2.layout_data
     )?;
 
     let words_for_resp = construct_words_for_resp(&content);
@@ -91,36 +95,80 @@ async fn random_two_layouts(db_client: &DBClient) -> Result<(LayoutModel, Layout
         return Err(AppError::NotEnoughLayoutsForBattle);
     }
 
-    let random_seq_1 = rand::thread_rng().gen_range(1..=max_seq_id);
-    let random_seq_2 = loop {
-        let seq = rand::thread_rng().gen_range(1..=max_seq_id);
-        if seq != random_seq_1 {
-            break seq;
+    let mut best_pair: Option<(LayoutModel, LayoutModel)> = None;
+    let mut diff = -1;
+    for _ in 0..MAX_RANDOM_LAYOUT_ATTEMPTS {
+        let random_seq_1 = rand::thread_rng().gen_range(1..=max_seq_id);
+        let random_seq_2 = loop {
+            let seq = rand::thread_rng().gen_range(1..=max_seq_id);
+            if seq != random_seq_1 {
+                break seq;
+            }
+        };
+
+        let layout_1 = db_client.get_layout_by_sequence_id(random_seq_1).await?;
+        let layout_2 = db_client.get_layout_by_sequence_id(random_seq_2).await?;
+
+        if layout_1.id == layout_2.id {
+            return Err(AppError::NotEnoughLayoutsForBattle);
         }
-    };
 
-    tracing::debug!("random 2 seq id {} {}", random_seq_1, random_seq_2);
+        let t_diff = calc_layout_difference(&layout_1.layout_data, &layout_2.layout_data);
+        
+        tracing::debug!("random 2 layout with seq {} {}, diff {}", random_seq_1, random_seq_2, t_diff);
 
-    let layout_1 = db_client.get_layout_by_sequence_id(random_seq_1).await?;
-    let layout_2 = db_client.get_layout_by_sequence_id(random_seq_2).await?;
-
-    if layout_1.id == layout_2.id {
-        return Err(AppError::NotEnoughLayoutsForBattle);
+        if t_diff >= MIN_RANDOM_LAYOUT_DIFF {
+            return Ok((layout_1, layout_2));
+        }
+        
+        if t_diff > diff {
+            diff = t_diff;
+            best_pair = Some((layout_1, layout_2));
+        }
     }
 
-    Ok((layout_1, layout_2))
+    if let Some(best_pair) = best_pair {
+        Ok(best_pair)
+    } else {
+        Err(AppError::NotEnoughLayoutsForBattle)
+    }
 }
 
-fn construct_content(words: Vec<&str>, base_layout_data: &str, layout_1_data: &str, layout_2_data: &str) -> Result<ContentData, AppError> {
+fn generate_content(wordlist: &Wordlist, base_layout_data: &str, layout_1_data: &str, layout_2_data: &str) -> Result<ContentData, AppError> {
     let mut content = ContentData{
         words: Vec::new(),
     };
 
-    for word in words {
+    for _ in 0..WORD_COUNT {
+        let word = loop { // retry if word already chosen
+            let w = wordlist.random_words_with_limit(1, MAX_WORD_LEN)[0];
+            let mut is_new = true;
+            for c in content.words.iter() {
+                if w == c.original {
+                    is_new = false;
+                    break;
+                }
+            }
+            if is_new {
+                break w;
+            }
+        };
+
+        let mut random_word_attempt = 0;
+        let (translated_1, translated_2) = loop { // retry while translated word is the same
+            random_word_attempt += 1;
+            let translated_1 = translate_word(word, base_layout_data, layout_1_data)?;
+            let translated_2 = translate_word(word, base_layout_data, layout_2_data)?;
+
+            if random_word_attempt >= MAX_RANDOM_WORD_ATTEMPTS || translated_1 != translated_2 {
+                break (translated_1, translated_2);
+            }
+        };
+
         content.words.push(ContentWordData{
             original: word.to_owned(),
-            translated_1: translate_word(word, base_layout_data, layout_1_data)?,
-            translated_2: translate_word(word, base_layout_data, layout_2_data)?,
+            translated_1,
+            translated_2,
             should_swap: rand::thread_rng().gen_bool(0.5),
         })
     }
@@ -267,7 +315,10 @@ fn calc_result(content: &ContentData, times: Vec<(i64, i64)>, comfort_choice: Ve
         };
 
         let mut score = 0;
-        let min_diff = ((std::cmp::min(time_1, time_2) as f64) * TIME_PERCENT_FOR_DRAW / 100.0).round() as i64;
+        let min_diff = std::cmp::max(
+            ((std::cmp::min(time_1, time_2) as f64) * TIME_PERCENT_FOR_DRAW / 100.0).round() as i64,
+            MIN_TIME_FOR_DRAW
+        );
         if time_1 + min_diff < time_2 { // time_2 is atleast min_diff higher than time_1
             result.score += 1;
             score = 1;
@@ -397,15 +448,15 @@ mod tests {
         // test draw in word
         let result = calc_result(&ContentData{
             words: vec![no_swap.clone(), no_swap.clone()],
-        }, vec![(92, 100), (100, 200)], vec![0, 1]);
+        }, vec![(920, 1000), (100, 200)], vec![0, 1]);
 
         assert_eq!(result, ResultData{
             words: vec![ResultWordData{
                 original: "some_word".to_owned(),
                 translated_1: "some_word".to_owned(),
                 translated_2: "some_word".to_owned(),
-                time_1: 92,
-                time_2: 100,
+                time_1: 920,
+                time_2: 1000,
                 score: 0,
                 comfort_choice: 0,
             }, result_1.clone()],
@@ -413,6 +464,25 @@ mod tests {
             comfort_score: 1,
         });
 
+        let result = calc_result(&ContentData{
+            words: vec![no_swap.clone(), no_swap.clone()],
+        }, vec![(880, 1000), (100, 200)], vec![0, 1]);
+
+        assert_eq!(result, ResultData{
+            words: vec![ResultWordData{
+                original: "some_word".to_owned(),
+                translated_1: "some_word".to_owned(),
+                translated_2: "some_word".to_owned(),
+                time_1: 880,
+                time_2: 1000,
+                score: 1,
+                comfort_choice: 0,
+            }, result_1.clone()],
+            score: 2,
+            comfort_score: 1,
+        });
+
+        // test draw time too low
         let result = calc_result(&ContentData{
             words: vec![no_swap.clone(), no_swap.clone()],
         }, vec![(88, 100), (100, 200)], vec![0, 1]);
@@ -424,10 +494,10 @@ mod tests {
                 translated_2: "some_word".to_owned(),
                 time_1: 88,
                 time_2: 100,
-                score: 1,
+                score: 0,
                 comfort_choice: 0,
             }, result_1.clone()],
-            score: 2,
+            score: 1,
             comfort_score: 1,
         });
     }
