@@ -15,6 +15,7 @@ const WORD_COUNT: usize = 5;
 const MAX_WORD_LEN: usize = 7;
 const GLICKO_C_VALUE: f64 = 20.0;
 const TIME_PERCENT_FOR_DRAW: f64 = 10.0;
+const MIN_TIME_FOR_DRAW: i64 = 25;
 
 #[derive(Debug, Deserialize)]
 pub struct CreateBattleRequest {
@@ -267,7 +268,10 @@ fn calc_result(content: &ContentData, times: Vec<(i64, i64)>, comfort_choice: Ve
         };
 
         let mut score = 0;
-        let min_diff = ((std::cmp::min(time_1, time_2) as f64) * TIME_PERCENT_FOR_DRAW / 100.0).round() as i64;
+        let min_diff = std::cmp::max(
+            ((std::cmp::min(time_1, time_2) as f64) * TIME_PERCENT_FOR_DRAW / 100.0).round() as i64,
+            MIN_TIME_FOR_DRAW
+        );
         if time_1 + min_diff < time_2 { // time_2 is atleast min_diff higher than time_1
             result.score += 1;
             score = 1;
@@ -397,15 +401,15 @@ mod tests {
         // test draw in word
         let result = calc_result(&ContentData{
             words: vec![no_swap.clone(), no_swap.clone()],
-        }, vec![(92, 100), (100, 200)], vec![0, 1]);
+        }, vec![(920, 1000), (100, 200)], vec![0, 1]);
 
         assert_eq!(result, ResultData{
             words: vec![ResultWordData{
                 original: "some_word".to_owned(),
                 translated_1: "some_word".to_owned(),
                 translated_2: "some_word".to_owned(),
-                time_1: 92,
-                time_2: 100,
+                time_1: 920,
+                time_2: 1000,
                 score: 0,
                 comfort_choice: 0,
             }, result_1.clone()],
@@ -413,6 +417,25 @@ mod tests {
             comfort_score: 1,
         });
 
+        let result = calc_result(&ContentData{
+            words: vec![no_swap.clone(), no_swap.clone()],
+        }, vec![(880, 1000), (100, 200)], vec![0, 1]);
+
+        assert_eq!(result, ResultData{
+            words: vec![ResultWordData{
+                original: "some_word".to_owned(),
+                translated_1: "some_word".to_owned(),
+                translated_2: "some_word".to_owned(),
+                time_1: 880,
+                time_2: 1000,
+                score: 1,
+                comfort_choice: 0,
+            }, result_1.clone()],
+            score: 2,
+            comfort_score: 1,
+        });
+
+        // test draw time too low
         let result = calc_result(&ContentData{
             words: vec![no_swap.clone(), no_swap.clone()],
         }, vec![(88, 100), (100, 200)], vec![0, 1]);
@@ -424,10 +447,10 @@ mod tests {
                 translated_2: "some_word".to_owned(),
                 time_1: 88,
                 time_2: 100,
-                score: 1,
+                score: 0,
                 comfort_choice: 0,
             }, result_1.clone()],
-            score: 2,
+            score: 1,
             comfort_score: 1,
         });
     }

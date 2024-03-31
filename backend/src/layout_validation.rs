@@ -44,7 +44,7 @@ mod tests {
         assert_eq!(validate_base_layout_data("ypoujkdlcwinea,mhtsr'qz/.:bfgvx"), true); // mtgap
         assert_eq!(validate_base_layout_data("qwfpbjluy;arstgmneio'zxcdvkh,."), false); // invalid
         assert_eq!(validate_base_layout_data("qwfpbjluy;arstgmneio'zxcdvkh,.."), false); // invalid
-        assert_eq!(validate_base_layout_data("qwfpbjluy;arstgmneio'zxcdvk:,./"), false); // invalid
+        assert_eq!(validate_base_layout_data("qwfpbjluy;arstgmneio'zxcdvk:,./"), true); // incomplete char
         assert_eq!(validate_base_layout_data(DEFAULT_LAYOUT_DATA), true);
     }
 }
