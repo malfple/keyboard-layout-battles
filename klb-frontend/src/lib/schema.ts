@@ -101,6 +101,7 @@ export interface Layout {
     description: string
     rating: number
     rating_comfort: number
+    rating_data: any
     time_created: number
     time_modified: number
 }

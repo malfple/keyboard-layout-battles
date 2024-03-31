@@ -25,5 +25,9 @@
         <p>
             Comfort Rating: {data.layout.rating_comfort}
         </p>
+        <p>
+            Rating Data:
+        </p>
+        <pre>{JSON.stringify(data.layout.rating_data, null, 4)}</pre>
     </div>
 </div>
