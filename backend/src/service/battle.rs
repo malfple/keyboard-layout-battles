@@ -18,7 +18,9 @@ const TIME_PERCENT_FOR_DRAW: f64 = 10.0;
 const MIN_TIME_FOR_DRAW: i64 = 25;
 
 const MAX_RANDOM_LAYOUT_ATTEMPTS: i32 = 5;
-const MIN_RANDOM_LAYOUT_DIFF: f64 = 0.2;
+const MIN_RANDOM_LAYOUT_DIFF: f64 = 0.15;
+const MAX_RANDOM_LAYOUT_RATING_DIFF: i32 = 400;
+
 const MAX_RANDOM_WORD_ATTEMPTS: i32 = 10;
 
 #[derive(Debug, Deserialize)]
@@ -117,11 +119,15 @@ async fn random_two_layouts(wordlist: &Wordlist, db_client: &DBClient, base_layo
         let diff_base_1 = calc_layout_difference(wordlist, &layout_1.layout_data, base_layout_data);
         let diff_base_2 = calc_layout_difference(wordlist, &layout_2.layout_data, base_layout_data);
         
-        tracing::debug!("random 2 layout with seq {} {}, diff {}, diff to base {} {}", random_seq_1, random_seq_2, t_diff, diff_base_1, diff_base_2);
+        tracing::debug!("random 2 layout with seq {} {}, diff {}, diff to base {} {} | rating {} {}",
+            random_seq_1, random_seq_2, t_diff, diff_base_1, diff_base_2, layout_1.rating, layout_2.rating);
 
         // if all layouts are quite different, immediately allow. Otherwise record 2 layout with the most difference below threshold
         if t_diff >= MIN_RANDOM_LAYOUT_DIFF {
-            if diff_base_1 >= MIN_RANDOM_LAYOUT_DIFF && diff_base_2 >= MIN_RANDOM_LAYOUT_DIFF {
+            if diff_base_1 >= MIN_RANDOM_LAYOUT_DIFF
+                && diff_base_2 >= MIN_RANDOM_LAYOUT_DIFF
+                && (layout_1.rating - layout_2.rating).abs() <= MAX_RANDOM_LAYOUT_RATING_DIFF
+            {
                 return Ok((layout_1, layout_2));
             }
 
