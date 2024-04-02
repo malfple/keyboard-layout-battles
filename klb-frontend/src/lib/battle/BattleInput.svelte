@@ -217,6 +217,7 @@
             } else if(e.key == "Enter") {
                 e.preventDefault();
                 comfortPick.push(selected);
+                selected = 0;
                 nextState();
                 render();
             }
