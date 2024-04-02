@@ -17,7 +17,7 @@ const GLICKO_C_VALUE: f64 = 20.0;
 const TIME_PERCENT_FOR_DRAW: f64 = 10.0;
 const MIN_TIME_FOR_DRAW: i64 = 25;
 
-const MAX_RANDOM_LAYOUT_ATTEMPTS: i32 = 3;
+const MAX_RANDOM_LAYOUT_ATTEMPTS: i32 = 5;
 const MIN_RANDOM_LAYOUT_DIFF: f64 = 0.2;
 const MAX_RANDOM_WORD_ATTEMPTS: i32 = 10;
 
@@ -52,7 +52,7 @@ pub async fn create_battle(
     // TODO: create limiter: either rate limit for public or count limiter for users
 
     // pick 2 random layouts
-    let (layout_1, layout_2) = random_two_layouts(&state.wordlist, &state.db_client).await?;
+    let (layout_1, layout_2) = random_two_layouts(&state.wordlist, &state.db_client, &req.base_layout_data).await?;
     tracing::debug!("random 2 layouts {:?}, {:?}", layout_1, layout_2);
 
     // generate content
@@ -87,7 +87,7 @@ pub async fn create_battle(
     }))
 }
 
-async fn random_two_layouts(wordlist: &Wordlist, db_client: &DBClient) -> Result<(LayoutModel, LayoutModel), AppError> {
+async fn random_two_layouts(wordlist: &Wordlist, db_client: &DBClient, base_layout_data: &str) -> Result<(LayoutModel, LayoutModel), AppError> {
     let max_seq_id = db_client.get_layout_max_sequence_id().await?;
 
     tracing::debug!("max seq id {}", max_seq_id);
@@ -113,12 +113,19 @@ async fn random_two_layouts(wordlist: &Wordlist, db_client: &DBClient) -> Result
             return Err(AppError::NotEnoughLayoutsForBattle);
         }
 
-        let t_diff = calc_layout_difference(wordlist, &layout_1.layout_data, &layout_2.layout_data);
+        let mut t_diff = calc_layout_difference(wordlist, &layout_1.layout_data, &layout_2.layout_data);
+        let diff_base_1 = calc_layout_difference(wordlist, &layout_1.layout_data, base_layout_data);
+        let diff_base_2 = calc_layout_difference(wordlist, &layout_2.layout_data, base_layout_data);
         
-        tracing::debug!("random 2 layout with seq {} {}, diff {}", random_seq_1, random_seq_2, t_diff);
+        tracing::debug!("random 2 layout with seq {} {}, diff {}, diff to base {} {}", random_seq_1, random_seq_2, t_diff, diff_base_1, diff_base_2);
 
+        // if all layouts are quite different, immediately allow. Otherwise record 2 layout with the most difference below threshold
         if t_diff >= MIN_RANDOM_LAYOUT_DIFF {
-            return Ok((layout_1, layout_2));
+            if diff_base_1 >= MIN_RANDOM_LAYOUT_DIFF && diff_base_2 >= MIN_RANDOM_LAYOUT_DIFF {
+                return Ok((layout_1, layout_2));
+            }
+
+            t_diff = MIN_RANDOM_LAYOUT_DIFF;
         }
         
         if t_diff > diff {

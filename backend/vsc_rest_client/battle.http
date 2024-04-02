@@ -20,7 +20,7 @@ Content-Type: application/json
 # Authorization: Bearer {{accessToken}}
 
 {
-    "base_layout_data": "qwertyuiopasdfghjkl;'zxcvbnm,./",
+    "base_layout_data": "bldcvjyou,nrtsgphaei/xqmwzkf';.",
     "is_personal": false
 }
 
