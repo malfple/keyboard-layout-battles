@@ -6,8 +6,14 @@ use serde::Deserialize;
 use crate::error::AppError;
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub struct Wordlist {
+    words: Vec<String>,
+    pub char_freq: [f64; 256],
+}
+
+#[derive(Debug, Deserialize)]
+struct WordlistFile {
     words: Vec<String>,
 }
 
@@ -16,8 +22,27 @@ const WORDLIST_FILE_PATH: &str = "wordlist.json";
 impl Wordlist {
     pub fn new() -> Wordlist {
         let data = fs::read_to_string(WORDLIST_FILE_PATH).expect("wordlist file missing");
-        let res: Wordlist = serde_json::from_str(&data).expect("unable to parse wordlist file");
-        res
+        let res: WordlistFile = serde_json::from_str(&data).expect("unable to parse wordlist file");
+
+        // calc char freq
+        let mut char_freq = [0.0; 256];
+        let mut total_count = 0.0;
+        for word in res.words.iter() {
+            for b in word.bytes() {
+                char_freq[b as usize] += 1.0;
+                total_count += 1.0;
+            }
+        }
+        for i in 0..char_freq.len() {
+            char_freq[i] /= total_count;
+        }
+
+        tracing::debug!("Initialized word list | char_freq: {:?}", char_freq);
+        
+        Wordlist{
+            words: res.words,
+            char_freq,
+        }
     }
 
     pub fn random_words(&self, count : usize) -> Vec<&String> {
