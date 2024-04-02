@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{db::model::{BattleHistoryLiteModel, BattleHistoryModel}, error::AppError, AppState};
 
-
+const MAX_LIMIT: i64 = 100;
 
 #[derive(Debug, Deserialize)]
 pub struct GetBattleHistoryListRequest {
@@ -20,7 +20,7 @@ pub async fn get_battle_history_list(
     State(state): State<AppState>,
     Query(req): Query<GetBattleHistoryListRequest>,
 ) -> Result<Json<GetBattleHistoryListResponse>, AppError> {
-    if req.limit > 100 {
+    if req.limit > MAX_LIMIT {
         return Err(AppError::InvalidParameter(String::from("limit")));
     }
 

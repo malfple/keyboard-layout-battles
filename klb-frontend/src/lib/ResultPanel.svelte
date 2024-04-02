@@ -24,13 +24,13 @@
 {#if layout_1 && layout_2}
     <div class="grid grid-cols-3 gap-4 text-center">
         <h2 class="h2">
-            {layout_1.name}
+            <a href={`/layout/${layout_1.id}-${layout_1.name}`}>{layout_1.name}</a>
         </h2>
         <h2 class="h2">
             vs
         </h2>
         <h2 class="h2">
-            {layout_2.name}
+            <a href={`/layout/${layout_2.id}-${layout_2.name}`}>{layout_2.name}</a>
         </h2>
 
         {#each result.words as word}
