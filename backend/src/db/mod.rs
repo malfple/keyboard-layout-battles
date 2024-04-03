@@ -251,7 +251,7 @@ impl DBClient {
         Ok(result)
     }
 
-    pub async fn get_battle_history_lite_list_ordered_by_time(&self, limit: i64) -> Result<Vec<BattleHistoryLiteModel>, AppError> {
+    pub async fn get_battle_history_lite_list(&self, limit: i64) -> Result<Vec<BattleHistoryLiteModel>, AppError> {
         let mut conn = self.pool.get().await?;
 
         let result = battle_history_tab::table
@@ -260,6 +260,33 @@ impl DBClient {
             .limit(limit)
             .load(&mut conn)
             .await?;
+
+        Ok(result)
+    }
+
+    pub async fn get_battle_history_lite_list_with_layout_id(&self, layout_id: u64, limit: i64) -> Result<Vec<BattleHistoryLiteModel>, AppError> {
+        let mut conn = self.pool.get().await?;
+
+        // get the union first
+        // union is used instead of where-or to avoid sql using filesort on the whole merged index
+        let mut result: Vec<BattleHistoryLiteModel> = battle_history_tab::table
+            .select(BattleHistoryLiteModel::as_select())
+            .filter(battle_history_tab::layout_id_1.eq(layout_id))
+            .order(battle_history_tab::id.desc())
+            .limit(limit)
+            .union(
+                battle_history_tab::table
+                .select(BattleHistoryLiteModel::as_select())
+                .filter(battle_history_tab::layout_id_2.eq(layout_id))
+                .order(battle_history_tab::id.desc())
+                .limit(limit)
+            )
+            .load(&mut conn)
+            .await?;
+            
+        // re-sort and limit
+        result.sort_by(|a, b| b.id.cmp(&a.id));
+        result.truncate(limit as usize);
 
         Ok(result)
     }
