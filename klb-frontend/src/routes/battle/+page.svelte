@@ -13,7 +13,7 @@
     let battles: BattleHistoryLite[];
 
     onMount(async () => {
-        handleFetchPromise(fetch("/api/battle/histories?limit=10"), (data: GetBattleHistoryListResponse) => {
+        handleFetchPromise(fetch("/api/battle/histories?limit=50"), (data: GetBattleHistoryListResponse) => {
             battles = data.battles;
         }, toastStore);
     })

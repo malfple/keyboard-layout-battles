@@ -3,11 +3,12 @@ use serde::{Deserialize, Serialize};
 
 use crate::{db::model::{BattleHistoryLiteModel, BattleHistoryModel}, error::AppError, AppState};
 
-
+const MAX_LIMIT: i64 = 100;
 
 #[derive(Debug, Deserialize)]
 pub struct GetBattleHistoryListRequest {
     limit: i64,
+    layout_id: Option<u64>,
 }
 
 #[derive(Debug, Serialize)]
@@ -20,11 +21,15 @@ pub async fn get_battle_history_list(
     State(state): State<AppState>,
     Query(req): Query<GetBattleHistoryListRequest>,
 ) -> Result<Json<GetBattleHistoryListResponse>, AppError> {
-    if req.limit > 100 {
+    if req.limit > MAX_LIMIT {
         return Err(AppError::InvalidParameter(String::from("limit")));
     }
 
-    let battles = state.db_client.get_battle_history_lite_list_ordered_by_time(req.limit).await?;
+    let battles = if let Some(layout_id) = req.layout_id {
+        state.db_client.get_battle_history_lite_list_with_layout_id(layout_id, req.limit).await?
+    } else {
+        state.db_client.get_battle_history_lite_list(req.limit).await?
+    };
 
     Ok(Json(GetBattleHistoryListResponse{
         battles,

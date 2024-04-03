@@ -5,6 +5,14 @@ GET http://localhost:3007/battle/histories
 
 ###
 
+# Get Battle History List by layout id
+
+GET http://localhost:3007/battle/histories
+?limit=3
+&layout_id=21
+
+###
+
 # Get Battle History
 
 GET http://localhost:3007/battle/history/1

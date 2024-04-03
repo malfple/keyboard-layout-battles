@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ResultPanel from "$lib/ResultPanel.svelte";
+	import Keyboard from "$lib/keyboard/Keyboard.svelte";
 import type { PageData } from "./$types";
 
     export let data: PageData;
@@ -29,5 +30,8 @@ import type { PageData } from "./$types";
             <div class="italic opacity-50">Speed rating changes</div>
             <div>{data.battle_history.layout_2_rating} ({data.battle_history.rating_2_gain>0?"+":""}{data.battle_history.rating_2_gain})</div>
         </div>
+
+        <h2 class="h2 pt-10">Base Layout Used</h2>
+        <Keyboard layoutData={data.battle_history.base_layout_data} heatmap={true} />
     </div>
 </div>
