@@ -84,9 +84,9 @@
             <h2 class="h2">Top Layouts</h2>
             <div class="grid grid-cols-2 gap-10">
                 <div>
-                    <div class="p-4">
+                    <h3 class="h3 p-4">
                         Speed rating
-                    </div>
+                    </h3>
                     <div class="table-container">
                         <div class="table table-compact table-interactive">
                             <thead>
@@ -109,9 +109,9 @@
                     </div>
                 </div>
                 <div>
-                    <div class="p-4">
+                    <h3 class="h3 p-4">
                         Comfort rating
-                    </div>
+                    </h3>
                     <div class="table-container">
                         <div class="table table-compact table-interactive">
                             <thead>
