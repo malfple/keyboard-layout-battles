@@ -13,7 +13,8 @@ use nanoid::nanoid;
 const MIN_LAYOUT_COUNT: u64 = 5;
 const WORD_COUNT: usize = 5;
 const MAX_WORD_LEN: usize = 7;
-const GLICKO_C_VALUE: f64 = 10.0;
+const GLICKO_C_VALUE: f64 = 0.0;
+const GLICKO_MIN_RD: f64 = 15.0;
 const TIME_PERCENT_FOR_DRAW: f64 = 10.0;
 const MIN_TIME_FOR_DRAW: i64 = 25;
 
@@ -392,6 +393,13 @@ fn update_rating(rating_1: &mut RatingData, rating_2: &mut RatingData, score: i3
         &rating_2.comfort,
         &calc_outcome(comfort_score),
         &config);
+    
+    if rating_1.global.deviation < GLICKO_MIN_RD {
+        rating_1.global.deviation = GLICKO_MIN_RD;
+    }
+    if rating_2.global.deviation < GLICKO_MIN_RD {
+        rating_2.global.deviation = GLICKO_MIN_RD;
+    }
 
     tracing::debug!("new rating data {:?} {:?}", rating_1, rating_2);
 }
