@@ -47,7 +47,7 @@
     })
 </script>
 
-<!-- dummy component to get color value -->y
+<!-- dummy component to get color value -->
 <div hidden bind:this={borderDiv} class="text-primary-500"></div>
 
 <div class="container mx-auto p-8 flex justify-center">
