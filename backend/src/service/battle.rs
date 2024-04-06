@@ -13,7 +13,7 @@ use nanoid::nanoid;
 const MIN_LAYOUT_COUNT: u64 = 5;
 const WORD_COUNT: usize = 5;
 const MAX_WORD_LEN: usize = 7;
-const GLICKO_C_VALUE: f64 = 20.0;
+const GLICKO_C_VALUE: f64 = 10.0;
 const TIME_PERCENT_FOR_DRAW: f64 = 10.0;
 const MIN_TIME_FOR_DRAW: i64 = 25;
 

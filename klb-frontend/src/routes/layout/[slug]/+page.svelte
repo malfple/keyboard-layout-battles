@@ -6,19 +6,49 @@
 	import type { BattleHistoryLite, GetBattleHistoryListResponse } from "$lib/schema";
 	import { getToastStore } from "@skeletonlabs/skeleton";
 	import { goto } from "$app/navigation";
+	import { Line } from "svelte-chartjs";
+	import type { ChartData } from "chart.js";
 
 	export let data: PageData;
 
     const toastStore = getToastStore();
 
     let battles: BattleHistoryLite[];
+    let lineData: ChartData<"line", number[]>;
+    let borderDiv: HTMLDivElement;
 
     onMount(async () => {
-        handleFetchPromise(fetch(`/api/battle/histories?limit=50&layout_id=${data.id}`), (data: GetBattleHistoryListResponse) => {
-            battles = data.battles;
+        handleFetchPromise(fetch(`/api/battle/histories?limit=50&layout_id=${data.id}`), (resp: GetBattleHistoryListResponse) => {
+            battles = resp.battles;
+
+            let labels = [];
+            let dataset = [];
+            for(let battle of battles) {
+                labels.push(battle.id);
+                if(battle.layout_id_1 == data.id) {
+                    dataset.push(battle.layout_1_rating);
+                } else {
+                    dataset.push(battle.layout_2_rating);
+                }
+            }
+            labels.reverse();
+            dataset.reverse();
+
+            // create line graph data
+            lineData = {
+                labels: labels,
+                datasets: [{
+                    label: "Rating",
+                    data: dataset,
+                    borderColor: getComputedStyle(borderDiv).color,
+                }],
+            }
         }, toastStore);
     })
 </script>
+
+<!-- dummy component to get color value -->y
+<div hidden bind:this={borderDiv} class="text-primary-500"></div>
 
 <div class="container mx-auto p-8 flex justify-center">
     <div class="space-y-10 flex flex-col items-center">
@@ -42,6 +72,14 @@
                 <div>
                     Comfort Rating: {data.layout.rating_comfort}
                 </div>
+                <div>
+                    Rating graph from recent battles
+                </div>
+                {#if lineData}
+                    <div>
+                        <Line data={lineData} />
+                    </div>
+                {/if}
                 <div>
                     Rating Data:
                 </div>

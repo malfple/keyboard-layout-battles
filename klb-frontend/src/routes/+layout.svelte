@@ -8,10 +8,44 @@
 	initializeStores();
 
 	// console.log("Retrieve top level data layouts", data, data.layouts.get(2));
+
+	// initialize chart js
+	import {
+		Chart as ChartJS,
+		Title,
+		Tooltip,
+		Legend,
+		LineElement,
+		LinearScale,
+		PointElement,
+		CategoryScale,
+	} from 'chart.js';
+	import { onMount } from 'svelte';
+
+	ChartJS.register(
+		Title,
+		Tooltip,
+		Legend,
+		LineElement,
+		LinearScale,
+		PointElement,
+		CategoryScale
+	);
+
+	let defaultDiv: HTMLDivElement;
+	let borderDiv: HTMLDivElement;
+	onMount(() => {
+		ChartJS.defaults.borderColor = getComputedStyle(borderDiv).color;
+		ChartJS.defaults.color = getComputedStyle(defaultDiv).color;
+	});
 </script>
 
 <Toast />
 <Modal />
+
+<!-- dummy component to get color value -->
+<div hidden bind:this={defaultDiv}></div>
+<div hidden bind:this={borderDiv} class="text-surface-500"></div>
 
 <AppShell>
 	<AppRail slot="sidebarLeft" width="w-40" aspectRatio="aspect-[3/1]" class="pb-6">
