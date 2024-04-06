@@ -21,30 +21,34 @@
         handleFetchPromise(fetch(`/api/battle/histories?limit=50&layout_id=${data.id}`), (resp: GetBattleHistoryListResponse) => {
             battles = resp.battles;
 
-            let labels = [];
-            let dataset = [];
-            for(let battle of battles) {
-                labels.push(battle.id);
-                if(battle.layout_id_1 == data.id) {
-                    dataset.push(battle.layout_1_rating);
-                } else {
-                    dataset.push(battle.layout_2_rating);
-                }
-            }
-            labels.reverse();
-            dataset.reverse();
-
-            // create line graph data
-            lineData = {
-                labels: labels,
-                datasets: [{
-                    label: "Rating",
-                    data: dataset,
-                    borderColor: getComputedStyle(borderDiv).color,
-                }],
-            }
+            setupGraph();
         }, toastStore);
     })
+
+    function setupGraph() {
+        let labels = [];
+        let dataset = [];
+        for(let battle of battles) {
+            labels.push(battle.id);
+            if(battle.layout_id_1 == data.id) {
+                dataset.push(battle.layout_1_rating);
+            } else {
+                dataset.push(battle.layout_2_rating);
+            }
+        }
+        labels.reverse();
+        dataset.reverse();
+
+        // create line graph data
+        lineData = {
+            labels: labels,
+            datasets: [{
+                label: "Rating",
+                data: dataset,
+                borderColor: getComputedStyle(borderDiv).color,
+            }],
+        }
+    }
 </script>
 
 <!-- dummy component to get color value -->
